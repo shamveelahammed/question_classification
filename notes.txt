@@ -1,0 +1,18 @@
+===========
+Installation of PyTorch (Mac OS catalina)
+===========
+conda install pytorch torchvision -c pytorch
+
+Verification: Run this python3 file
+
+    from __future__ import print_function
+    import torch
+    x = torch.rand(5, 3)
+    print(x)
+
+If you are getting this warning:
+    Unable to import 'torch' pylint(import-error)
+    https://donjayamanne.github.io/pythonVSCodeDocs/docs/troubleshooting_linting/
+
+    also disable PyLint in VSCode Workspace Settings
+
