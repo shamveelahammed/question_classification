@@ -46,7 +46,7 @@ class BagOfWords():
         # Compute histogram of words in training dataset.
         word_freq = defaultdict(lambda: 0)
         for line in training_data:
-            words = self.tokenize(line.split(':', 1)[1])
+            words = self.tokenize(line.split(' ', 1)[1]) # split after the first space to remove the class e.g., DESC:manner How many...
             for word in words:
                 word_freq[word] += 1
         
