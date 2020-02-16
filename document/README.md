@@ -35,8 +35,9 @@ tokens = bow.tokenize('This is a sentence.')
 ```
 
 * to_vector(input_sentence):
-    - input: string                       e.g., "This is a sentence"
-    - output: an 100 elemnt numpy array   e.g., [0.1124, 0.15151, -0.12516, ... 0.7872]
+    - input: string                       e.g., "LABEL:label This is a sentence"
+    - output: an 100 elemnt numpy array and a string representing the label
+                                          e.g., [0.1124, 0.15151, -0.12516, ... 0.7872], "LABEL:label"
 
 This is the main functionality of the class, these vectors represent the data model for the classifier.
 
