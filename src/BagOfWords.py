@@ -73,7 +73,11 @@ class BagOfWords():
         """
         Given an sentence as a string, compute a vector as the element wise average of all word vectors.
         """
-        words = self.tokenize(input_sentence)
+        label = input_sentence.split(' ', 1)[0]
+        if not re.match('(\w+):(\w+)', label):
+            label = 'UNKNOWN'
+
+        words = self.tokenize(input_sentence.split(' ', 1)[1])
 
         # Initiate the sum of word vectors with an array of zeros.
         sum_of_vectors = np.zeros(100)
@@ -91,4 +95,4 @@ class BagOfWords():
                 sum_of_vectors = np.add(sum_of_vectors, np.repeat(-1, 100))
 
         # Return the element-wise average of the sum of vectors values.
-        return np.divide(sum_of_vectors, len(words))
+        return np.divide(sum_of_vectors, len(words)), label
