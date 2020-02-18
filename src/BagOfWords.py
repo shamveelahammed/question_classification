@@ -1,9 +1,8 @@
 import re
 import numpy as np
-import torch.nn as nn
 import torch
 
-class BagOfWords(nn.Module):
+class BagOfWords():
     """
     Class to handle Bag Of Words vector creation.
     """
@@ -39,7 +38,7 @@ class BagOfWords(nn.Module):
             return 'UNKNOWN', sentence
         return sentence.split(' ', 1)[0], sentence.split(' ', 1)[1]
 
-    def forward(self, sentence):
+    def get_vector(self, sentence):
         """
         Given an sentence as a string, compute a vector as the element wise average of all word vectors.
         """
