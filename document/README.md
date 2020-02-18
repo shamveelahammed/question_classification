@@ -1,47 +1,63 @@
 # question_classification
 
-## BagOfWords Class Interface
-This is a class for generating sentence bag-of-words vectors.
-Interface supports two modes:
-* glove
-* random
-
-### Glove
-This mode loads the Glove Pre-trained word vectors: Wikipedia 2014 + Gigaword 5 (6B tokens, 400K vocab, uncased, 50d, 100d, 200d, & 300d vectors, 822 MB download).
-The Interaface uses the **100d** vectors.
-
-How to initialise:
+## WordEmbeddingLoader
+### HOW TO USE
+* GloVe
 ```python
-bow = BagOfWords(embeddings='glove')
+from torch import LongTensor
+from WordEmbeddingLoader import WordEmbeddingLoader
+
+# freeze is by default False, so only needs specifying when true.
+word_to_index, embedding = WordEmbeddingLoader.load(freeze=True) 
+index =  LongTensor([word_to_index['name']])
+print(embedding(index))
 ```
-
-### Random
-This mode builds a vocabulary of randomly initialised word vectors using the training data frequent words.
-
-How to initialise:
-```python
-bow = BagOfWords(embeddings='random', training_data_path=PATH_TO_TRAIN_DATA_FILE, frequency_threshold=MIN_FREQUENCY)
+```bash
+tensor([[ 1.1326e-01, -2.3055e-01,  4.6840e-01, -2.6068e-01,  1.2871e-01,
+          3.8373e-01, -3.2314e-02, -5.7986e-01,  1.8424e-01,  4.6796e-02,
+         -5.5893e-01,  2.7794e-01,  7.4838e-01,  3.3575e-01,  2.6834e-02,
+         -4.4505e-01,  1.4755e+00, -1.4081e-01, -3.1658e-01,  5.7686e-01,
+         -1.8440e-01, -1.0370e-01, -2.2519e-01,  3.4614e-01, -2.1930e-01,
+         -2.3868e-01, -1.2845e-01, -7.7772e-01,  1.6957e-01,  2.9432e-02,
+          4.7705e-01,  8.5881e-01, -5.3617e-02,  1.0770e-01,  9.6440e-02,
+          2.7325e-01,  4.4933e-02,  1.3310e-03,  5.0395e-02, -4.8147e-01,
+          1.7561e-01,  1.9419e-01,  5.1495e-01, -5.6149e-01,  1.1211e-01,
+          2.5591e-01,  2.9011e-02, -3.4461e-03, -1.8478e-01, -2.0650e-01,
+          1.0358e-01,  7.5532e-01,  9.4688e-01,  8.4278e-01, -7.0051e-01,
+         -2.4433e+00, -9.1913e-01, -1.0451e-01,  9.0954e-01,  2.5491e-01,
+          2.1129e-01,  1.2046e+00, -9.1615e-02,  3.0364e-01,  1.3768e+00,
+         -5.8152e-01,  3.8085e-01,  1.5504e-01,  2.0049e-01,  7.3361e-04,
+         -6.2300e-01,  2.0244e-01, -3.0387e-01, -8.1412e-01,  3.8805e-01,
+          2.1271e-01, -4.1525e-02, -4.5596e-02, -1.1508e+00, -2.5826e-01,
+         -8.9721e-02, -1.1256e+00, -2.5124e-01, -2.8010e-01, -1.0334e+00,
+         -1.6813e-01, -4.0975e-01, -1.0685e+00,  7.4311e-01,  8.3244e-02,
+         -3.3616e-01, -8.8150e-02,  1.5401e-01,  4.7736e-01, -1.8272e-01,
+         -2.5543e-01, -8.9365e-01, -4.6822e-01,  1.9834e-01, -4.8772e-02]],
+       grad_fn=<EmbeddingBackward>)
 ```
-
-### Class functions:
-* tokenize(input_sentence):
-    - input: string             e.g., "This is a sentence"
-    - output: list of strings   e.g., ["This", "is", "a", "sentence"]
-This function is used internally by the to_vector function, but it is public should you need to use it in a different context.
-
-How to use:
+* Random
 ```python
-tokens = bow.tokenize('This is a sentence.')
+from torch import LongTensor
+from WordEmbeddingLoader import WordEmbeddingLoader
+
+# random is by default False - which points to GloVe.
+# data_path and frequency_threshold are by default None, as they are not needed for Glove.
+word_to_index, embedding = WordEmbeddingLoader.load(random=True, data_path='data\\train_label.txt', frequency_threshold=2)
+index = LongTensor([word_to_index['name']])
+print(embedding(index))
 ```
-
-* to_vector(input_sentence):
-    - input: string                       e.g., "LABEL:label This is a sentence"
-    - output: an 100 elemnt numpy array and a string representing the label
-                                          e.g., [0.1124, 0.15151, -0.12516, ... 0.7872], "LABEL:label"
-
-This is the main functionality of the class, these vectors represent the data model for the classifier.
-
-How to use:
-```python
-sentence_vector = bow.to_vector('This is a sentence')
+```bash
+tensor([[ 3.9767, -3.7362,  1.3508,  5.3946,  6.1296,  7.9175,  4.6109,  9.7723,
+          5.1597, -4.6943,  0.4804, -0.8930, -4.8745,  4.9583,  4.7207, -3.5724,
+         -4.5541,  8.2829, -4.4200,  2.3837,  7.1392, -7.8685, -9.2198, -3.9581,
+         -5.2689,  6.4879, -2.3979,  4.8083, -6.2414,  5.9522,  4.7746, -3.8616,
+         -3.2186, -6.1294,  8.4027,  3.4032,  6.0694, -5.7826, -2.9766, -8.0869,
+          2.0886,  8.3767,  4.2533, -0.4216,  1.9670, -8.5290, -3.4193, -5.1419,
+         -5.9387, -4.3393,  5.2120,  4.2373, -3.9011, -1.4666,  5.8140, -4.5459,
+         -7.6593, -0.2991,  8.4109, -1.9186, -4.0094,  6.0459, -5.5141, -1.6606,
+         -1.4810,  9.5261, -0.5930,  3.5788, -0.8000, -3.0614,  2.9651,  5.5222,
+         -2.4042, -1.3364, -2.7648,  9.9728,  4.3789, -2.1103, -2.0517, -0.1833,
+          2.0719, -3.1465,  3.9070, -3.6225, -6.6028, -6.7624, -4.3794,  3.1722,
+          0.4343,  9.8298, -4.8722,  9.1777, -8.6320, -3.1353,  6.2808, -9.7483,
+         -7.1193, -6.6784, -4.9679,  5.2280]], grad_fn=<EmbeddingBackward>)
 ```
