@@ -1,9 +1,7 @@
 import re
 import nltk
+import gensim.downloader as api
 import numpy as np
-import csv
-import torch
-import torch.nn as nn
 from nltk.corpus import stopwords
 from collections import defaultdict
 
@@ -11,14 +9,15 @@ class BagOfWords():
     """
     Class to handle Bag Of Words vector creation.
     """
-    def __init__(self, embeddings='glove', training_data_path=None, frequency_threshold=None, freeze=False):
-        self.setup(embeddings, training_data_path, frequency_threshold, freeze)
+    def __init__(self, embeddings='glove', training_data_path=None, frequency_threshold=None):
+        self.setup(embeddings, training_data_path, frequency_threshold)
     
-    def setup(self, embeddings, training_data_path, frequency_threshold, freeze):
+    def setup(self, embeddings, training_data_path, frequency_threshold):
         """
         Setup the BagOfWords environment by downloading the stopwords corpus from nltk if missing
         and loading the correct word embeddings.
         """
+        self.embeddings = embeddings
 
         try:
             nltk.data.find('corpora/stopwords')
@@ -26,29 +25,11 @@ class BagOfWords():
             nltk.download('stopwords')
         
         if embeddings == 'glove':
-            self._load_glove(freeze)
+            self.word_vectors = api.load("glove-wiki-gigaword-100")
         elif embeddings == 'random':
-            raise
             self.word_vectors = self._build_embeddings_from_training_data(training_data_path, frequency_threshold)
         else:
             raise ValueError('embeddings can be either \'glove\' or \'random\'.')
-    
-    def _load_glove(self, freeze):
-        """
-        Load the glove pretrained set and initialize Embeddings.
-        """
-        word_to_ix = {}
-        weights = []
-
-        with open('data\glove.6B.100d.txt', encoding='utf8') as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=' ', quoting=csv.QUOTE_NONE)
-            for index, row in enumerate(csv_reader):
-                word_to_ix[row[0]] = index
-                weights.append([float(weight) for weight in row[1:]])
-        
-        weights = torch.FloatTensor(weights)
-        self.word_to_ix = word_to_ix
-        self.embedding = nn.Embedding.from_pretrained(weights, freeze=freeze)
     
     def _build_embeddings_from_training_data(self, training_data_path, frequency_threshold):
         """
@@ -105,9 +86,11 @@ class BagOfWords():
         # If the word is not in the dictionary, add an array of -1
         for word in words:
             try:
-                word_index = torch.LongTensor([self.word_to_ix[word]])
-                word_vector = self.embedding(word_index)
-                sum_of_vectors = np.add(sum_of_vectors, word_vector)
+                # Handle lookups for both embeddings.
+                if self.embeddings == 'glove':
+                    sum_of_vectors = np.add(sum_of_vectors, self.word_vectors.get_vector(word))
+                else:
+                    sum_of_vectors = np.add(sum_of_vectors, self.word_vectors[word])
             except KeyError:
                 sum_of_vectors = np.add(sum_of_vectors, np.repeat(-1, 100))
 

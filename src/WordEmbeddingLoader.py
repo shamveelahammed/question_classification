@@ -23,13 +23,11 @@ class WordEmbeddingLoader():
         """
         if not data_path:
             raise ValueError('data_path cannot be None for random loading of word embeddings.')
-        try:
-            data = open(data_path, 'r')
-        except FileNotFoundError:
-            raise
         if not frequency_threshold:
             raise ValueError('frequency_threshold cannot be None for random word embeddings.')
 
+        data = open(data_path, 'r')
+        
         # Compute histogram of words in training dataset.
         word_freq = defaultdict(lambda: 0)
         for line in data:

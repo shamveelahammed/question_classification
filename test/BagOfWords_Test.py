@@ -1,22 +1,24 @@
 import unittest
 
 from BagOfWords import BagOfWords as bow
+from WordEmbeddingLoader import WordEmbeddingLoader
 
-class TestTokenize(unittest.TestCase):
-    """TDD test for the tokenize function from BagOfWords
+class Test_Tokenize(unittest.TestCase):
+    """TDD test for the _tokenize function from BagOfWords"""
     def setUp(self):
-        self.bow = BagOfWords('glove')
+        word_to_index, embeddings = WordEmbeddingLoader.load()
+        self.bow = BagOfWords(embeddings, word_to_index)
  
     def no_input_test(self):
         sentence = None
         with self.assertRaises(ValueError):
-            self.bow.tokenize(sentence)
+            self.bow._tokenize(sentence)
     
     def empty_input_test(self):
         sentence = ""
         expected = []
 
-        actual = self.bow.tokenize(sentence)
+        actual = self.bow._tokenize(sentence)
 
         self.assertEqual(actual, expected)
 
@@ -24,7 +26,7 @@ class TestTokenize(unittest.TestCase):
         sentence = "word keyboard laptop sentence program"
         expected = ["word", "keyboard", "laptop", "sentence", "program"]
 
-        actual = self.bow.tokenize(sentence)
+        actual = self.bow._tokenize(sentence)
 
         self.assertEqual(actual, expected)
     
@@ -32,7 +34,7 @@ class TestTokenize(unittest.TestCase):
         sentence = "Word Keyboard Laptop Sentence Program"
         expected = ["word", "keyboard", "laptop", "sentence", "program"]
 
-        actual = self.bow.tokenize(sentence)
+        actual = self.bow._tokenize(sentence)
 
         self.assertEqual(actual, expected)
 
@@ -40,7 +42,7 @@ class TestTokenize(unittest.TestCase):
         sentence = "word! \"keyboard\" laptop... sentence? program."
         expected = ["word", "keyboard", "laptop", "sentence", "program"]
 
-        actual = self.bow.tokenize(sentence)
+        actual = self.bow._tokenize(sentence)
 
         self.assertEqual(actual, expected)
     
@@ -48,6 +50,6 @@ class TestTokenize(unittest.TestCase):
         sentence = "word this keyboard that laptop about sentence for program"
         expected = ["word", "keyboard", "laptop", "sentence", "program"]
 
-        actual = self.bow.tokenize(sentence)
+        actual = self.bow._tokenize(sentence)
 
         self.assertEqual(actual, expected)

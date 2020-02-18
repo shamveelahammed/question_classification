@@ -1,98 +1,63 @@
 import re
-import nltk
-import gensim.downloader as api
 import numpy as np
-from nltk.corpus import stopwords
-from collections import defaultdict
+import torch.nn as nn
+import torch
 
-class BagOfWords():
+class BagOfWords(nn.Module):
     """
     Class to handle Bag Of Words vector creation.
     """
-    def __init__(self, embeddings='glove', training_data_path=None, frequency_threshold=None):
-        self.setup(embeddings, training_data_path, frequency_threshold)
-    
-    def setup(self, embeddings, training_data_path, frequency_threshold):
-        """
-        Setup the BagOfWords environment by downloading the stopwords corpus from nltk if missing
-        and loading the correct word embeddings.
-        """
+    def __init__(self, embeddings, word_to_index):
+        super(BagOfWords, self).__init__()
+        
         self.embeddings = embeddings
-
-        try:
-            nltk.data.find('corpora/stopwords')
-        except LookupError:
-            nltk.download('stopwords')
-        
-        if embeddings == 'glove':
-            self.word_vectors = api.load("glove-wiki-gigaword-100")
-        elif embeddings == 'random':
-            self.word_vectors = self._build_embeddings_from_training_data(training_data_path, frequency_threshold)
-        else:
-            raise ValueError('embeddings can be either \'glove\' or \'random\'.')
+        self.word_to_index = word_to_index
+        self.stopwords = self._load_stopwords()
     
-    def _build_embeddings_from_training_data(self, training_data_path, frequency_threshold):
+    def _load_stopwords(self):
         """
-        If random embeddings, parse training data and compute word vectors by randomly initializing
-        arrays for every frequent word.
+        Load stopwords list from file.
         """
-        try:
-            training_data = open(training_data_path, 'r')
-        except FileNotFoundError:
-            raise
-        if not frequency_threshold:
-            raise ValueError('frequency_threshold cannot be None for \'random\' embeddings BagOfWords.')
+        stopwords_file = open('data\stopwords.txt', encoding='utf8')
+        return [line for line in stopwords_file.readlines()]
 
-        # Compute histogram of words in training dataset.
-        word_freq = defaultdict(lambda: 0)
-        for line in training_data:
-            words = self.tokenize(line.split(' ', 1)[1]) # split after the first space to remove the class e.g., DESC:manner How many...
-            for word in words:
-                word_freq[word] += 1
-        
-        # Compute the word embeddings for all words with the occurence greater than frequency_threshold.
-        word_vectors = {}
-        for word in word_freq.keys():
-            if word_freq[word] >= frequency_threshold:
-                word_vectors[word] = np.random.rand(100)
-
-        return word_vectors
-
-    def tokenize(self, input_sentence):
+    def _tokenize(self, sentence):
         """
         Tokenize input sentence as a string to an array of individual words.
         """
-        if input_sentence is None:
+        if sentence is None:
             raise ValueError('Input sentence cannot be None')
-        if input_sentence == '':
+        if sentence == '':
             return []
+        return [word.lower() for word in re.sub("[^\w]", " ", sentence).split() if word not in self.stopwords]
+    
+    def _split_on_label(self, sentence):
+        """
+        Specific function to split only sentences with the format 'LABEL:label words words words words' into label and sentence.
+        """
+        if not re.match('(\w+):(\w+)', sentence):
+            return 'UNKNOWN', sentence
+        return sentence.split(' ', 1)[0], sentence.split(' ', 1)[1]
 
-        return [word.lower() for word in re.sub("[^\w]", " ", input_sentence).split() if word not in stopwords.words('english')]
-
-    def get_vector(self, input_sentence):
+    def forward(self, sentence):
         """
         Given an sentence as a string, compute a vector as the element wise average of all word vectors.
         """
-        label = input_sentence.split(' ', 1)[0]
-        if not re.match('(\w+):(\w+)', label):
-            label = 'UNKNOWN'
-
-        words = self.tokenize(input_sentence.split(' ', 1)[1])
+        label, sentence = self._split_on_label(sentence)
+        words = self._tokenize(sentence)
 
         # Initiate the sum of word vectors with an array of zeros.
-        sum_of_vectors = np.zeros(100)
+        sum_of_vectors = torch.zeros(100)
 
         # For each word, add it's vector element-wise to the sum of vectors.
         # If the word is not in the dictionary, add an array of -1
         for word in words:
             try:
-                # Handle lookups for both embeddings.
-                if self.embeddings == 'glove':
-                    sum_of_vectors = np.add(sum_of_vectors, self.word_vectors.get_vector(word))
-                else:
-                    sum_of_vectors = np.add(sum_of_vectors, self.word_vectors[word])
+                word_index = torch.LongTensor([self.word_to_index[word]])
+                word_vector = self.embeddings(word_index)
+                sum_of_vectors = torch.add(sum_of_vectors, word_vector)
             except KeyError:
-                sum_of_vectors = np.add(sum_of_vectors, np.repeat(-1, 100))
+                sum_of_vectors = torch.add(sum_of_vectors, torch.rand(100).type(torch.FloatTensor))
 
         # Return the element-wise average of the sum of vectors values.
-        return np.divide(sum_of_vectors, len(words)), label
+        return torch.div(sum_of_vectors, len(words)), label
