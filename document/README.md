@@ -69,7 +69,7 @@ from BagOfWords import BagOfWords
 word_to_index, embedding = WordEmbeddingLoader.load()
 bow = BagOfWords(embedding, word_to_index)
 
-vector, label = bow.forward("ENTY:food What do you get by adding Lactobacillus bulgaricus to milk ?")
+vector, label = bow.get_vector("ENTY:food What do you get by adding Lactobacillus bulgaricus to milk ?")
 print(vector)
 print(label)
 ```
