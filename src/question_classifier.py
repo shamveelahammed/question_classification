@@ -51,9 +51,9 @@ def train_model(args):
     
     # Open relevant files, raise if they don't exist.
     try:
-        train_file = open(args.train_file, 'r')
-        config_file = open(args.config_file, 'r')
-        model_file = open(args.model_file, 'w+')
+        train_file = open(args.train_file, 'r', encoding = "ISO-8859-1")
+        config_file = open(args.config_file, 'r', encoding = "ISO-8859-1")
+        model_file = open(args.model_file, 'w+', encoding = "ISO-8859-1")
     except FileNotFoundError as ex:
         raise ex
 

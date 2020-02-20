@@ -17,7 +17,7 @@ class BagOfWords():
         """
         Load stopwords list from file.
         """
-        stopwords_file = open('data\stopwords.txt', encoding='utf8')
+        stopwords_file = open('../data/stopwords.txt', encoding = "ISO-8859-1")
         return [line for line in stopwords_file.readlines()]
 
     def _tokenize(self, sentence):

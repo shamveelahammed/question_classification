@@ -26,7 +26,7 @@ class WordEmbeddingLoader():
         if not frequency_threshold:
             raise ValueError('frequency_threshold cannot be None for random word embeddings.')
 
-        data = open(data_path, 'r')
+        data = open(data_path, 'r',encoding = "ISO-8859-1")
         
         # Compute histogram of words in training dataset.
         word_freq = defaultdict(lambda: 0)
