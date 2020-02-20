@@ -97,3 +97,27 @@ tensor([[-1.8807e-01,  2.7060e-01,  1.4559e-01, -3.8446e-01, -4.4511e-01,
        grad_fn=<DivBackward0>)
 ENTY:food
 ```
+
+## Training Classifier
+### HOW TO USE
+* BOW
+- Train the model
+```bash
+python question_classifier.py train --train_file ..\data\train_5500.label.txt --model bow --config_file parameter.config --model_file model.bin
+```
+```bash --train_file  ``` The training data to be used to train the model. <br />
+```bash --model ``` Which model to use, it either Bow/BiLTSM <br />
+```bash --config_file  ``` the hyper-paramters to train the model and NN <br />
+```bash --model_file  ``` where will the trained model to be saved
+
+- Test the model
+```bash
+python question_classifier.py test --test_file ..\data\test_label.txt --model bow --config_file parameter.config --model_file model.bin
+```
+```bash --train_file  ``` The data to be used to test the model. <br />
+```bash --model ``` Which model to use, it either Bow/BiLTSM <br />
+```bash --config_file  ``` the hyper-paramters to train the model and NN <br />
+```bash --model_file  ``` the pre-trained model to predict accurecy
+
+
+
