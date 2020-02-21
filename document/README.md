@@ -119,5 +119,16 @@ python question_classifier.py test --test_file ..\data\test_label.txt --model bo
 ```bash --config_file  ``` the hyper-paramters to train the model and NN <br />
 ```bash --model_file  ``` the pre-trained model to predict accurecy
 
+## BiLSTMInterface
+### HOW TO USE
+```python
+from BiLSTMInterface import BiLSTMInterface
 
+EMBEDDING_DIM = 32
+HIDDEN_DIM = 32
 
+bilst = BiLSTMInterface('../data/train_label.txt', EMBEDDING_DIM, HIDDEN_DIM)
+
+vector = bow.get_vector("What do you get by adding Lactobacillus bulgaricus to milk ?")
+print(vector)
+```
