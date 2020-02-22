@@ -56,7 +56,7 @@ class WordEmbeddingLoader():
         word_to_index = {}
         weights = []
 
-        csv_file = open('data\\glove.6B.100d.txt', encoding='utf8')
+        csv_file = open('../data/glove.small.txt', encoding='ISO-8859-1')
         csv_reader = csv.reader(csv_file, delimiter=' ', quoting=csv.QUOTE_NONE)
 
         for index, row in enumerate(csv_reader):
