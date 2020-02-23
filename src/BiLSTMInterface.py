@@ -109,13 +109,13 @@ class BiLSTM(nn.Module):
             
     def forward(self, sentence):
         embeds = self.word_embeddings(sentence)
-        lstm_out, self.hidden = self.lstm(embeds.view(len(sentence), 1, -1), self.hidden )
+        lstm_out, self.hidden = self.lstm(embeds.view(len(sentence), 1, -1), self.hidden)
         label_space = self.hidden2label(lstm_out.view(len(sentence), -1))
         label_scores = F.log_softmax(label_space, dim=1)
         return label_scores
         
 ## Testing
-EMBEDDING_DIM = 64
+EMBEDDING_DIM = 299
 HIDDEN_DIM = 32
 bilst = BiLSTMInterface('../data/train_label_small.txt', EMBEDDING_DIM, HIDDEN_DIM, usePretrained=False)    
 print(bilst.load_and_train_bilstm)
