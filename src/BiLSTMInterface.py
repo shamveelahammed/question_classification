@@ -7,6 +7,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from WordEmbeddingLoader  import WordEmbeddingLoader
+import sys
+from torch.autograd import Variable
 
 class BiLSTMInterface():
     def __init__(self, file_path, embedding_dim, hidden_dim, usePretrained=False):
@@ -37,11 +39,10 @@ class BiLSTMInterface():
 
                 sentence_in = self.prepare_sequence(sentence)
                 targets = self.prepare_labels(labels)
-
                 label_scores = model(sentence_in)
 
                 loss = loss_function(label_scores, targets)
-                loss.backward()
+                loss.backward(retain_graph=True)
                 optimizer.step()
         
         return model
@@ -77,6 +78,7 @@ class BiLSTMInterface():
 
     #TODO: add padding
     def prepare_sequence(self, sequence):
+        # print(self.word_to_index[word])
         indexes = [self.word_to_index[word] for word in sequence]
         # padding = [0 for index in range(0, self.max_sentence_length - len(indexes))]
         # padding.extend(indexes)
@@ -98,16 +100,22 @@ class BiLSTM(nn.Module):
             self.word_embeddings = nn.Embedding.from_pretrained(pretrained_vec)
             #self.embedding.weight.data.copy_(pretrained_vec)
         self.lstm = nn.LSTM(embedding_dim, hidden_dim, bidirectional=True)
-        self.hidden2label = nn.Linear(hidden_dim, labelset_size)
-
+        self.hidden2label = nn.Linear(hidden_dim*2, labelset_size)
+        self.hidden = self.init_hidden()
+    
+    def init_hidden(self):
+        return (Variable(torch.zeros(2, 1, self.hidden_dim)),
+                Variable(torch.zeros(2, 1, self.hidden_dim)))
+            
     def forward(self, sentence):
         embeds = self.word_embeddings(sentence)
-        lstm_out, _ = self.lstm(embeds.view(len(sentence), 1, -1))
+        lstm_out, self.hidden = self.lstm(embeds.view(len(sentence), 1, -1), self.hidden )
         label_space = self.hidden2label(lstm_out.view(len(sentence), -1))
         label_scores = F.log_softmax(label_space, dim=1)
         return label_scores
+        
 ## Testing
-EMBEDDING_DIM = 32
+EMBEDDING_DIM = 64
 HIDDEN_DIM = 32
-bilst = BiLSTMInterface('../data/train_label.txt', EMBEDDING_DIM, HIDDEN_DIM, usePretrained=False)    
+bilst = BiLSTMInterface('../data/train_label_small.txt', EMBEDDING_DIM, HIDDEN_DIM, usePretrained=False)    
 print(bilst.load_and_train_bilstm)
