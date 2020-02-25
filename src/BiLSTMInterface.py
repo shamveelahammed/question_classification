@@ -57,7 +57,6 @@ class BiLSTMInterface():
         epoch_acc = 0
         
         for sentence, label in self.training_data:
-
             sentence_in = self.prepare_sequence(sentence)
             target = self.prepare_labels(label)
             label_scores = model(sentence_in).squeeze(1)
@@ -105,36 +104,43 @@ class BiLSTMInterface():
         return torch.tensor([self.label_to_index[label]], dtype=torch.long)
 
 class BiLSTM(nn.Module):
-    def __init__(self, embedding_dim, hidden_dim, vocab_size, labelset_size, batch_size=1, pretrained_vec=None):
+    def __init__(self, embedding_dim, hidden_dim, vocab_size, labelset_size, pretrained_vec=None):
         super(BiLSTM, self).__init__()
         self.hidden_dim = hidden_dim
+        self.dropout = nn.Dropout(p=0.2)
+
         if pretrained_vec is None:
             self.word_embeddings = nn.Embedding(vocab_size, embedding_dim)
         else:    
             self.word_embeddings = nn.Embedding.from_pretrained(pretrained_vec)
-        self.batch_size = 1
-        self.lstm = nn.LSTM(input_size=embedding_dim, hidden_size=hidden_dim, bidirectional=True)
+
+        self.lstm = nn.LSTM(input_size=embedding_dim, hidden_size=hidden_dim, dropout=0.2, bidirectional=True)
         self.hidden2label = nn.Linear(hidden_dim * 2, labelset_size)
         self.hidden = self.init_hidden()
     
     def init_hidden(self):
-        return (Variable(torch.zeros(2, self.batch_size, self.hidden_dim)),
-                Variable(torch.zeros(2, self.batch_size, self.hidden_dim)))
+        return (Variable(torch.zeros(2, 1, self.hidden_dim)),
+                Variable(torch.zeros(2, 1, self.hidden_dim)))
             
     def forward(self, sentence):
-        embeds = self.word_embeddings(sentence)
-        embeds = embeds.view(len(sentence), self.batch_size, -1)
-        lstm_out, self.hidden = self.lstm(embeds, self.hidden)
-        label_space = self.hidden2label(lstm_out[-1])
+        embedds = self.word_embeddings(sentence).view(len(sentence), 1, -1)
+        lstm_out, (h_n, c_n) = self.lstm(embedds)
+        label_space = self.hidden2label(self.dropout(torch.cat([c_n[i,:, :] for i in range(c_n.shape[0])], dim=1)))
         label_scores = F.log_softmax(label_space)
         return label_scores
 
-def chunks(lst, n):
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
+        # LONG RUNNING CODE BELOW
+        # embeds = self.word_embeddings(sentence)
+        # embeds = embeds.view(len(sentence), self.batch_size, -1)
+        # print(embeds)
+        # print(self.hidden)
+        # lstm_out, self.hidden = self.lstm(embeds, self.hidden)
+        # label_space = self.hidden2label(lstm_out[-1])
+        # label_scores = F.log_softmax(label_space)
+        # return label_scores
 
 ## Testing
-EMBEDDING_DIM = 6
-HIDDEN_DIM = 6
-bilst = BiLSTMInterface('../data/train_label_Small.txt', EMBEDDING_DIM, HIDDEN_DIM)    
+EMBEDDING_DIM = 300
+HIDDEN_DIM = 150
+bilst = BiLSTMInterface('../data/train_label.txt', EMBEDDING_DIM, HIDDEN_DIM)    
 print(bilst.to_vector('How did serfdom develop in and then leave Russia ?'))
