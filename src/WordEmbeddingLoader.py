@@ -7,19 +7,20 @@ from collections import defaultdict
 
 
 class WordEmbeddingLoader():
-    def load(freeze=False, random=False, data_path=None, frequency_threshold=None):
+    def load(freeze=False, random=False, data_path=None, frequency_threshold=None, vector_size=None):
         """
         """
         if random:
             word_to_index, weights = WordEmbeddingLoader._build_random_weights(
-                data_path, frequency_threshold)
+                data_path, frequency_threshold, vector_size)
         else:
             word_to_index, weights = WordEmbeddingLoader._load_glove_weights()
+
         embedding = Embedding.from_pretrained(weights, freeze=freeze)
 
         return word_to_index, embedding
 
-    def _build_random_weights(data_path, frequency_threshold):
+    def _build_random_weights(data_path, frequency_threshold, vector_size):
         """
         Build random weights using the training data set frequent words.
         """
@@ -49,7 +50,7 @@ class WordEmbeddingLoader():
                 word_to_index[word] = word_index
                 word_index += 1
                 weights.append(random.uniform(
-                    low=-10, high=10, size=(100,)).tolist())
+                    low=-10, high=10, size=(vector_size,)).tolist())
         weights = FloatTensor(weights)
 
         return word_to_index, weights
