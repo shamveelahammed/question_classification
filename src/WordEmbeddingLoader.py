@@ -5,12 +5,14 @@ from torch import FloatTensor
 from numpy import random
 from collections import defaultdict
 
+
 class WordEmbeddingLoader():
     def load(freeze=False, random=False, data_path=None, frequency_threshold=None):
         """
         """
         if random:
-            word_to_index, weights = WordEmbeddingLoader._build_random_weights(data_path, frequency_threshold)
+            word_to_index, weights = WordEmbeddingLoader._build_random_weights(
+                data_path, frequency_threshold)
         else:
             word_to_index, weights = WordEmbeddingLoader._load_glove_weights()
         embedding = Embedding.from_pretrained(weights, freeze=freeze)
@@ -22,19 +24,21 @@ class WordEmbeddingLoader():
         Build random weights using the training data set frequent words.
         """
         if not data_path:
-            raise ValueError('data_path cannot be None for random loading of word embeddings.')
+            raise ValueError(
+                'data_path cannot be None for random loading of word embeddings.')
         if not frequency_threshold:
-            raise ValueError('frequency_threshold cannot be None for random word embeddings.')
+            raise ValueError(
+                'frequency_threshold cannot be None for random word embeddings.')
 
-        data = open(data_path, 'r',encoding = "ISO-8859-1")
-        
+        data = open(data_path, 'r', encoding="ISO-8859-1")
+
         # Compute histogram of words in training dataset.
         word_freq = defaultdict(lambda: 0)
         for line in data:
-            words = [word.lower() for word in line.split()] # tokenize
+            words = [word.lower() for word in line.split()]  # tokenize
             for word in words:
                 word_freq[word] += 1
-        
+
         # Compute the word embeddings for all words with the occurence greater than frequency_threshold.
         word_to_index = {}
         weights = []
@@ -44,7 +48,8 @@ class WordEmbeddingLoader():
             if word_freq[word] >= frequency_threshold:
                 word_to_index[word] = word_index
                 word_index += 1
-                weights.append(random.uniform(low=-10, high=10, size=(100,)).tolist())
+                weights.append(random.uniform(
+                    low=-10, high=10, size=(100,)).tolist())
         weights = FloatTensor(weights)
 
         return word_to_index, weights
@@ -57,12 +62,14 @@ class WordEmbeddingLoader():
         weights = []
 
         csv_file = open('../data/glove.small.txt', encoding='ISO-8859-1')
-        csv_reader = csv.reader(csv_file, delimiter=' ', quoting=csv.QUOTE_NONE)
+        csv_reader = csv.reader(
+            csv_file, delimiter='\t', quoting=csv.QUOTE_NONE)
 
         for index, row in enumerate(csv_reader):
             word_to_index[row[0]] = index
-            weights.append([float(weight) for weight in row[1:]])
-        
+            word_weights = row[1].split()
+            weights.append([float(weight) for weight in word_weights])
+
         weights = FloatTensor(weights)
 
         return word_to_index, weights

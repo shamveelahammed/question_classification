@@ -2,8 +2,8 @@ from argparse import ArgumentParser
 import torch
 import numpy as np
 
-from BagOfWords             import BagOfWords
-from WordEmbeddingLoader    import WordEmbeddingLoader
+from BagOfWords import BagOfWords
+from WordEmbeddingLoader import WordEmbeddingLoader
 from FeedForwardNetwork import Feedforward
 
 
@@ -12,14 +12,19 @@ def build_parser():
     Build and Return parser for the command line arguments.
     """
     parser = ArgumentParser()
-    parser.add_argument('run_type', metavar='train/test', choices=['train', 'test'], help="Select run type. Either 'test' or 'train'")
-    parser.add_argument('--model', choices=['bow'], help="Model type. Either 'bow' or 'bilstm'") #TODO: add 'bilstm' as a choice when available
+    parser.add_argument('run_type', metavar='train/test', choices=[
+                        'train', 'test'], help="Select run type. Either 'test' or 'train'")
+    # TODO: add 'bilstm' as a choice when available
+    parser.add_argument(
+        '--model', choices=['bow'], help="Model type. Either 'bow' or 'bilstm'")
     parser.add_argument('--train_file', help="Train file path, if train")
     parser.add_argument('--config_file', help="Config file path, if train")
-    parser.add_argument('--model_file', help="Existing model file path, if test. Output model file, if train")
+    parser.add_argument(
+        '--model_file', help="Existing model file path, if test. Output model file, if train")
     parser.add_argument('--test_path', help="Test file path, if test")
 
     return parser
+
 
 def run(parser):
     """
@@ -31,6 +36,7 @@ def run(parser):
         train_model(args)
     else:
         test_model(args)
+
 
 def train_model(args):
     """
@@ -46,25 +52,27 @@ def train_model(args):
         parser.error("'--config_file' argument missing!")
     if not args.model_file:
         parser.error("'--model_file' argument missing!")
-    
+
     model = args.model
-    
+
     # Open relevant files, raise if they don't exist.
     try:
-        train_file = open(args.train_file, 'r', encoding = "ISO-8859-1")
-        config_file = open(args.config_file, 'r', encoding = "ISO-8859-1")
-        model_file = open(args.model_file, 'w+', encoding = "ISO-8859-1")
+        train_file = open(args.train_file, 'r', encoding="ISO-8859-1")
+        config_file = open(args.config_file, 'r', encoding="ISO-8859-1")
+        model_file = open(args.model_file, 'w+', encoding="ISO-8859-1")
     except FileNotFoundError as ex:
         raise ex
 
     # Call run_training with relevant parameters.
-    run_training(model=model, train_file=train_file, config_file=config_file, model_file=model_file)
+    run_training(model=model, train_file=train_file,
+                 config_file=config_file, model_file=model_file)
+
 
 def test_model(args):
     """
     Process arguments and call run_testing.
     """
-    
+
     # Exit if any argument is missing.
     if not args.model:
         parser.error("'--model' argument missing!")
@@ -72,18 +80,19 @@ def test_model(args):
         parser.error("'--test_path' argument missing!")
     if not args.model_file:
         parser.error("'--model_file' argument missing!")
-    
+
     model = args.model
-    
+
     # Open relevant files, raise if they don't exist.
     try:
         test_file = open(args.test_path, 'r')
         model_file = open(args.model_file, 'r')
     except FileNotFoundError as ex:
         raise ex
-    
+
     # Call run_testing with relevant parameters.
     run_testing(model=model, model_file=model_file, test_file=test_file)
+
 
 def run_training(model, train_file, config_file, model_file):
     """
@@ -92,25 +101,27 @@ def run_training(model, train_file, config_file, model_file):
     # In case of using Bag of words
     if model == 'bow':
         # Fixed parameter for testing.. K = 10, or Model type = 'Random' or 'Glove'
-        word_to_index, embeddings = WordEmbeddingLoader.load(data_path= train_file.name, random=True, frequency_threshold=10)
+        word_to_index, embeddings = WordEmbeddingLoader.load(
+            data_path=train_file.name, random=False, frequency_threshold=10)
         BOW = BagOfWords(embeddings, word_to_index)
-        
-        # Get Text embedding for training
-        x_train , y_train_arr = get_text_embedding(BOW,train_file)
 
-        # Get unique classes and do mapping a Class to an index, 
+        # Get Text embedding for training
+        x_train, y_train_arr = get_text_embedding(BOW, train_file)
+
+        # Get unique classes and do mapping a Class to an index,
         y_classes = np.unique(y_train_arr)
-        dic = dict(zip(y_classes, list(range(0,len(y_classes)+1))))
+        dic = dict(zip(y_classes, list(range(0, len(y_classes)+1))))
 
         # Convert Classes' array to Tensor
-        y_train = torch.from_numpy(np.array([dic[v] for v in y_train_arr])).long()
+        y_train = torch.from_numpy(
+            np.array([dic[v] for v in y_train_arr])).long()
 
         # Create a model with hidden layer, with 75 neruons in a hidden layer (Hyper parameter)
         model = Feedforward(x_train.shape[1], 100, y_classes.shape[0])
-   
+
         # Training the model
-        model.fit(x_train,y_train)
-        
+        model.fit(x_train, y_train)
+
         # Export the model as a file
         model.eval()
         torch.save(model, "model.bin")
@@ -120,9 +131,9 @@ def run_training(model, train_file, config_file, model_file):
         print('Live Testing: Press Ctrl + C to exit !')
         while True:
             print('Please Insert a question to be classified: ')
-            question = input() 
+            question = input()
             # Test the model
-            input_test,y = BOW.get_vector('asd:asd '+ question)
+            input_test, y = BOW.get_vector('asd:asd ' + question)
             output = model.predict(input_test)
             pred = values, indices = torch.max(output[0], 0)
             print(pred)
@@ -130,10 +141,11 @@ def run_training(model, train_file, config_file, model_file):
 
     pass
 
-def get_text_embedding(model,train_file):
+
+def get_text_embedding(model, train_file):
 
     print('Started loading text embedding...')
-    
+
     # Arrays to have trainings/labels
     x_train_arr = []
     y_train_arr = []
@@ -150,7 +162,7 @@ def get_text_embedding(model,train_file):
 
     x_train = torch.stack(x_train_arr)
     print('Finished loading text embedding...')
-    return x_train,y_train_arr
+    return x_train, y_train_arr
 
 
 def run_testing(model, model_file, test_file):
@@ -158,28 +170,29 @@ def run_testing(model, model_file, test_file):
     TODO: This is just a stub - complete with relevant calls for processing (word embeddings, bow/bilstm) and testing
     """
     if model == 'bow':
-        
-        # Fixed parameter for testing.. K = 10, or Model type = 'Random' or 'Glove' 
-        word_to_index, embeddings = WordEmbeddingLoader.load(data_path= test_file.name, random=True, frequency_threshold=10)
+
+        # Fixed parameter for testing.. K = 10, or Model type = 'Random' or 'Glove'
+        word_to_index, embeddings = WordEmbeddingLoader.load(
+            data_path=test_file.name, random=True, frequency_threshold=10)
         BOW = BagOfWords(embeddings, word_to_index)
-        
-        # Get Text embedding for testing 
-        x_test , y_test_arr = get_text_embedding(BOW,test_file)
-        # Get unique classes and do mapping Class to an index, 
+
+        # Get Text embedding for testing
+        x_test, y_test_arr = get_text_embedding(BOW, test_file)
+        # Get unique classes and do mapping Class to an index,
         y_classes = np.unique(y_test_arr)
-        dic = dict(zip(y_classes, list(range(0,len(y_classes)+1))))
+        dic = dict(zip(y_classes, list(range(0, len(y_classes)+1))))
 
         # Convert arrays to Tensors
-        y_test = torch.from_numpy(np.array([dic[v] for v in y_test_arr])).long()
-    
+        y_test = torch.from_numpy(
+            np.array([dic[v] for v in y_test_arr])).long()
+
         # Load the model and get peformance
         print(model_file.name)
         model = torch.load(model_file.name)
         print('Model has been loaded...')
 
-        
         # Get Model score
-        criterion = torch.nn.CrossEntropyLoss() 
+        criterion = torch.nn.CrossEntropyLoss()
         model.eval()
         y_pred = model(x_test)
         after_train = criterion(y_pred.squeeze(), y_test)
@@ -187,6 +200,7 @@ def run_testing(model, model_file, test_file):
 
     pass
 
-if __name__== "__main__":
+
+if __name__ == "__main__":
     parser = build_parser()
     run(parser)
