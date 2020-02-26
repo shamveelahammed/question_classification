@@ -37,12 +37,12 @@ class BiLSTMInterface():
 
         for epoch in range(5):
             start_time = time.time()
-            train_loss = self.train(model, optimizer, criterion)            
+            train_loss, accuracy = self.train(model, optimizer, criterion)            
             end_time = time.time()
             epoch_mins, epoch_secs = self.epoch_time(start_time, end_time)
             
             print(f'Epoch: {epoch+1:02} | Epoch Time: {epoch_mins}m {epoch_secs}s')
-            print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: %')
+            print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {accuracy:.3f}%')
         
         return model
 
@@ -51,10 +51,20 @@ class BiLSTMInterface():
         elapsed_mins = int(elapsed_time / 60)
         elapsed_secs = int(elapsed_time - (elapsed_mins * 60))
         return elapsed_mins, elapsed_secs
+    
+    def get_accuracy(self, truth, pred):
+        assert len(truth) == len(pred)
+        right = 0
+        for i in range(len(truth)):
+            if truth[i] == pred[i]:
+                right += 1.0
+        return right / len(truth)
 
     def train(self, model, optimizer, criterion):
         epoch_loss = 0
         epoch_acc = 0
+        pred_res = []
+        target_res = []
         
         for sentence, label in self.training_data:
             sentence_in = self.prepare_sequence(sentence)
@@ -63,10 +73,16 @@ class BiLSTMInterface():
             loss = criterion(label_scores, target)
             loss.backward(retain_graph=True)
             optimizer.step()
-
+            
+            pred_label = label_scores.data.max(1)[1].numpy()
+            pred_res += [x for x in pred_label]
+            target_res += [target[0].item()]
+           
             epoch_loss += loss.item()
-    
-        return epoch_loss / len(self.training_data)
+        
+        accuracy = self.get_accuracy(target_res, pred_res)
+        
+        return epoch_loss / len(self.training_data), accuracy * 100
 
     def load_training_data(self, file_path):
         training_data = []
