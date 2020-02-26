@@ -4,7 +4,8 @@ import numpy as np
 
 from BagOfWords import BagOfWords
 from WordEmbeddingLoader import WordEmbeddingLoader
-from FeedForwardNetwork import Feedforward
+# from FeedForwardNetwork import Feedforward
+from FFN2 import Feedforward
 
 
 def build_parser():
