@@ -1,11 +1,14 @@
+# python question_classifier.py train --train_file ../data/train_5500.label.txt --model bow --config_file parameter.config --model_file model.bin
+
+
 from argparse import ArgumentParser
 import torch
 import numpy as np
 
 from BagOfWords import BagOfWords
 from WordEmbeddingLoader import WordEmbeddingLoader
-# from FeedForwardNetwork import Feedforward
-from FFN2 import Feedforward
+from FeedForwardNetwork import Feedforward
+# from FFN2 import Feedforward
 
 
 def build_parser():
@@ -103,7 +106,7 @@ def run_training(model, train_file, config_file, model_file):
     if model == 'bow':
         # Fixed parameter for testing.. K = 10, or Model type = 'Random' or 'Glove'
         word_to_index, embeddings = WordEmbeddingLoader.load(
-            data_path=train_file.name, random=False, frequency_threshold=10, vector_size=100)
+            data_path=train_file.name, random=True, frequency_threshold=10, vector_size=100)
         BOW = BagOfWords(embeddings, word_to_index)
 
         # Get Text embedding for training
