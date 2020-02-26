@@ -6,18 +6,19 @@ from numpy import random
 from collections import defaultdict
 
 class WordEmbeddingLoader():
-    def load(freeze=False, random=False, data_path=None, frequency_threshold=None):
+    def load(freeze=False, random=False, data_path=None, frequency_threshold=None, vector_size=None):
         """
         """
         if random:
-            word_to_index, weights = WordEmbeddingLoader._build_random_weights(data_path, frequency_threshold)
+            word_to_index, weights = WordEmbeddingLoader._build_random_weights(data_path, frequency_threshold, vector_size)
         else:
             word_to_index, weights = WordEmbeddingLoader._load_glove_weights()
+        
         embedding = Embedding.from_pretrained(weights, freeze=freeze)
 
         return word_to_index, embedding
 
-    def _build_random_weights(data_path, frequency_threshold):
+    def _build_random_weights(data_path, frequency_threshold, vector_size):
         """
         Build random weights using the training data set frequent words.
         """
@@ -44,7 +45,7 @@ class WordEmbeddingLoader():
             if word_freq[word] >= frequency_threshold:
                 word_to_index[word] = word_index
                 word_index += 1
-                weights.append(random.uniform(low=-10, high=10, size=(100,)).tolist())
+                weights.append(random.uniform(low=-10, high=10, size=(vector_size,)).tolist())
         weights = FloatTensor(weights)
 
         return word_to_index, weights
@@ -56,13 +57,14 @@ class WordEmbeddingLoader():
         word_to_index = {}
         weights = []
 
-        csv_file = open('../data/glove.small.txt', encoding='ISO-8859-1')
-        csv_reader = csv.reader(csv_file, delimiter=' ', quoting=csv.QUOTE_NONE)
+        csv_file = open('..\\data\\glove.6B.100d.txt', encoding='utf8')
+        csv_reader = csv.reader(csv_file, delimiter='\t', quoting=csv.QUOTE_NONE)
 
         for index, row in enumerate(csv_reader):
             word_to_index[row[0]] = index
-            weights.append([float(weight) for weight in row[1:]])
+            word_weights = row[1].split()
+            weights.append([float(weight) for weight in word_weights])
         
         weights = FloatTensor(weights)
-
+        
         return word_to_index, weights
