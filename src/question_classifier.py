@@ -102,7 +102,7 @@ def run_training(model, train_file, config_file, model_file):
     if model == 'bow':
         # Fixed parameter for testing.. K = 10, or Model type = 'Random' or 'Glove'
         word_to_index, embeddings = WordEmbeddingLoader.load(
-            data_path=train_file.name, random=False, frequency_threshold=10)
+            data_path=train_file.name, random=False, frequency_threshold=10, vector_size=100)
         BOW = BagOfWords(embeddings, word_to_index)
 
         # Get Text embedding for training
