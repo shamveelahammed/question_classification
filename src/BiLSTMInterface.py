@@ -61,6 +61,7 @@ class BiLSTMInterface():
         return right / len(truth)
 
     def train(self, model, optimizer, criterion):
+        model.train()
         epoch_loss = 0
         epoch_acc = 0
         pred_res = []
@@ -69,7 +70,9 @@ class BiLSTMInterface():
         for sentence, label in self.training_data:
             sentence_in = self.prepare_sequence(sentence)
             target = self.prepare_labels(label)
+            model.hidden = model.init_hidden()
             label_scores = model(sentence_in).squeeze(1)
+            model.zero_grad()
             loss = criterion(label_scores, target)
             loss.backward(retain_graph=True)
             optimizer.step()
@@ -77,6 +80,7 @@ class BiLSTMInterface():
             pred_label = label_scores.data.max(1)[1].numpy()
             pred_res += [x for x in pred_label]
             target_res += [target[0].item()]
+    
            
             epoch_loss += loss.item()
         
