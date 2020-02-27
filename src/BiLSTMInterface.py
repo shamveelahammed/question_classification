@@ -12,19 +12,28 @@ import sys
 from torch.autograd import Variable
 
 class BiLSTMInterface():
-    def __init__(self, file_path, embedding_dim, hidden_dim, usePretrained=False):
+    def __init__(self, file_path):
         self.training_data = self.load_training_data(file_path)
         self.word_to_index = self.build_word_to_index()
         self.label_to_index = self.build_label_to_index()
         self.max_sentence_length = max(len(sentence) for sentence, _ in self.training_data)
-        self.bilstm = self.load_and_train_bilstm(embedding_dim, hidden_dim, usePretrained)
+        self.bilstm = None
     
     def to_vector(self, sentence):
         with torch.no_grad():
             inputs = self.prepare_sequence(sentence.split())
             return self.bilstm(inputs)
+    
+    '''Saving the BiLSTM model '''
+    def save_bilstm_to_binary(self, filepath):
+        torch.save(self.bilstm, filepath)
+    
+    '''Loading the BiLSTM model '''
+    def load_bilstm_from_binary(self, filepath):
+        self.bilstm = torch.load(filepath)
 
-    def load_and_train_bilstm(self, embedding_dim, hidden_dim, usePretrained ):
+    '''Creates and trains the BiLSTM model '''
+    def load_and_train_bilstm(self, embedding_dim, hidden_dim, usePretrained=False):
         if usePretrained:
             _, embeddings = WordEmbeddingLoader._load_glove_weights()
             model = BiLSTM(embedding_dim, hidden_dim, len(self.word_to_index), len(self.label_to_index), embeddings)
@@ -35,7 +44,7 @@ class BiLSTMInterface():
         loss_function = nn.NLLLoss()
         optimizer = optim.SGD(model.parameters(), lr=0.1)
 
-        for epoch in range(5):
+        for epoch in range(6):
             start_time = time.time()
             train_loss, accuracy = self.train(model, optimizer, criterion)            
             end_time = time.time()
@@ -44,7 +53,7 @@ class BiLSTMInterface():
             print(f'Epoch: {epoch+1:02} | Epoch Time: {epoch_mins}m {epoch_secs}s')
             print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {accuracy:.3f}%')
         
-        return model
+        self.bilstm = model
 
     def epoch_time(self, start_time, end_time):
         elapsed_time = end_time - start_time
@@ -61,6 +70,7 @@ class BiLSTMInterface():
         return right / len(truth)
 
     def train(self, model, optimizer, criterion):
+        model.train()
         epoch_loss = 0
         epoch_acc = 0
         pred_res = []
@@ -69,7 +79,9 @@ class BiLSTMInterface():
         for sentence, label in self.training_data:
             sentence_in = self.prepare_sequence(sentence)
             target = self.prepare_labels(label)
+            model.hidden = model.init_hidden()
             label_scores = model(sentence_in).squeeze(1)
+            model.zero_grad()
             loss = criterion(label_scores, target)
             loss.backward(retain_graph=True)
             optimizer.step()
@@ -77,11 +89,10 @@ class BiLSTMInterface():
             pred_label = label_scores.data.max(1)[1].numpy()
             pred_res += [x for x in pred_label]
             target_res += [target[0].item()]
-           
+
             epoch_loss += loss.item()
         
         accuracy = self.get_accuracy(target_res, pred_res)
-        
         return epoch_loss / len(self.training_data), accuracy * 100
 
     def load_training_data(self, file_path):
@@ -113,7 +124,12 @@ class BiLSTMInterface():
         return label_to_index
 
     def prepare_sequence(self, sequence):
-        indexes = [self.word_to_index[word] for word in sequence]
+        indexes = []
+        for word in sequence:
+            if word in self.word_to_index.keys():
+                indexes.append(self.word_to_index[word])
+            else:
+                indexes.append(len(self.word_to_index[word])+1)    
         return torch.tensor(indexes, dtype=torch.long)
     
     def prepare_labels(self, label):
@@ -123,14 +139,12 @@ class BiLSTM(nn.Module):
     def __init__(self, embedding_dim, hidden_dim, vocab_size, labelset_size, pretrained_vec=None):
         super(BiLSTM, self).__init__()
         self.hidden_dim = hidden_dim
-        self.dropout = nn.Dropout(p=0.2)
-
         if pretrained_vec is None:
             self.word_embeddings = nn.Embedding(vocab_size, embedding_dim)
         else:    
             self.word_embeddings = nn.Embedding.from_pretrained(pretrained_vec)
 
-        self.lstm = nn.LSTM(input_size=embedding_dim, hidden_size=hidden_dim, dropout=0.2, bidirectional=True)
+        self.lstm = nn.LSTM(input_size=embedding_dim, hidden_size=hidden_dim, bidirectional=True)
         self.hidden2label = nn.Linear(hidden_dim * 2, labelset_size)
         self.hidden = self.init_hidden()
     
@@ -141,22 +155,17 @@ class BiLSTM(nn.Module):
     def forward(self, sentence):
         embedds = self.word_embeddings(sentence).view(len(sentence), 1, -1)
         lstm_out, (h_n, c_n) = self.lstm(embedds)
-        label_space = self.hidden2label(self.dropout(torch.cat([c_n[i,:, :] for i in range(c_n.shape[0])], dim=1)))
-        label_scores = F.log_softmax(label_space)
+        label_scores = self.hidden2label(torch.cat([c_n[i,:, :] for i in range(c_n.shape[0])], dim=1))
         return label_scores
-
-        # LONG RUNNING CODE BELOW
-        # embeds = self.word_embeddings(sentence)
-        # embeds = embeds.view(len(sentence), self.batch_size, -1)
-        # print(embeds)
-        # print(self.hidden)
-        # lstm_out, self.hidden = self.lstm(embeds, self.hidden)
-        # label_space = self.hidden2label(lstm_out[-1])
-        # label_scores = F.log_softmax(label_space)
-        # return label_scores
 
 ## Testing
 EMBEDDING_DIM = 300
 HIDDEN_DIM = 150
-bilst = BiLSTMInterface('../data/train_label.txt', EMBEDDING_DIM, HIDDEN_DIM)    
-print(bilst.to_vector('How did serfdom develop in and then leave Russia ?'))
+bilstm = BiLSTMInterface('../data/train_label.txt')
+bilstm.load_and_train_bilstm(EMBEDDING_DIM, HIDDEN_DIM, usePretrained=False)
+bilstm.save_bilstm_to_binary('data_bilstm.bin')
+
+# bilstm2 = BiLSTMInterface('../data/train_label.txt')
+# bilstm2.load_bilstm_from_binary('data_bilstm.bin')
+# print(bilstm2.to_vector('How did serfdom develop in and then leave Russia ?'))
+# print(bilstm2.to_vector('What is the date of Boxing Day ?'))
