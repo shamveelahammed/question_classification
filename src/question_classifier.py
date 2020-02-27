@@ -1,4 +1,4 @@
-# python question_classifier.py train --train_file ../data/train_5500.label.txt --model bow --config_file parameter.config --model_file model.bin
+# train --config_file parameter.config
 
 
 from argparse import ArgumentParser
@@ -83,7 +83,7 @@ def run_training(config):
     if config['model'] == 'bow':
         # Fixed parameter for testing.. K = 10, or Model type = 'Random' or 'Glove'
         word_to_index, embeddings = WordEmbeddingLoader.load(
-            data_path=config['train_file'], random=True, frequency_threshold=10, vector_size=100)
+            data_path=config['train_file'], random=False, frequency_threshold=10, vector_size=100)
         BOW = BagOfWords(embeddings, word_to_index)
 
         # Get Text embedding for training
@@ -99,16 +99,18 @@ def run_training(config):
 
         # Create a model with hidden layer, with 75 neruons in a hidden layer (Hyper parameter)
         model = Feedforward(x_train.shape[1], 100, y_classes.shape[0])
+        print(model)
 
         # Training the model
         y_pred = model.fit(x_train, y_train)
 
         # evaluation - under development
-        # get_f_score(y_pred, y_train)
+        get_f_score(y_pred, y_train)
+        # exit()
 
         # Export the model as a file
         model.eval()
-        torch.save(model, "model_champion.bin")
+        torch.save(model, "model_1.bin")
         print('The model has been exported to model.bin')
 
         # Done for testing the model, to be reomved later !
@@ -129,6 +131,8 @@ def run_training(config):
 # under development
 def get_f_score(y_pred, y_actual):
     # evaluation
+    # print(y_pred)
+
     y_pred_array = []
     for y in y_pred:
         pred = values, indices = torch.max(y, 0)
@@ -154,7 +158,7 @@ def get_text_embedding(model, train_file):
     y_train_arr = []
 
     # Go Through training examples in the file
-    with train_file as fp:
+    with open(train_file) as fp:
         next_line = fp.readline()
         while next_line:
             # Get word embbedding for this sentence using passed model
@@ -172,16 +176,16 @@ def run_testing(config):
     """
     TODO: This is just a stub - complete with relevant calls for processing (word embeddings, bow/bilstm) and testing
     """
-    if model == 'bow':
+    if config['model'] == 'bow':
 
         # Fixed parameter for testing.. K = 10, or Model type = 'Random' or 'Glove'
         word_to_index, embeddings = WordEmbeddingLoader.load(
             data_path=config['test_file'], random=True, frequency_threshold=10)
         BOW = BagOfWords(embeddings, word_to_index)
 
-        # Get Text embedding for testing
+        # # Get Text embedding for testing
         x_test, y_test_arr = get_text_embedding(BOW, test_file)
-        # Get unique classes and do mapping Class to an index,
+        # # Get unique classes and do mapping Class to an index,
         y_classes = np.unique(y_test_arr)
         dic = dict(zip(y_classes, list(range(0, len(y_classes)+1))))
 
@@ -189,17 +193,47 @@ def run_testing(config):
         y_test = torch.from_numpy(
             np.array([dic[v] for v in y_test_arr])).long()
 
-        # Load the model and get peformance
-        print(config['model_file'])
-        model = torch.load(config['model_file'])
-        print('Model has been loaded...')
+        # # Load the model and get peformance
+        # print(config['model_file'])
+        # model = torch.load(config['model_file'])
+        # print('Model has been loaded...')
 
-        # Get Model score
-        criterion = torch.nn.CrossEntropyLoss()
+        # # Get Model score
+        # criterion = torch.nn.CrossEntropyLoss()
+        # model.eval()
+        # y_pred = model(x_test)
+        # after_train = criterion(y_pred.squeeze(), y_test)
+        # print('Test loss after Training', after_train.item())
+
+        if(config['trained_model'] != ""):
+            model = torch.load(config['trained_model'])
+            print(model)
+        # Export the model as a file
         model.eval()
-        y_pred = model(x_test)
-        after_train = criterion(y_pred.squeeze(), y_test)
-        print('Test loss after Training', after_train.item())
+
+        # predict test data
+        y_pred = model.predict(x_test)
+
+        # evaluation
+        get_f_score(y_pred, y_test)
+
+        # exit()
+
+        # Done for testing the model, to be reomved later !
+        print('Live Testing for Model Champion: Press Ctrl + C to exit !')
+        while True:
+            print('Please Insert a question to be classified: ')
+            question = input()
+            # Test the model
+            input_test, y = BOW.get_vector('asd:asd ' + question)
+            # print(input_test.size())
+            output = model.predict(input_test)
+            print(output)
+            pred = values, indices = torch.max(output[0], 0)
+            print(pred)
+            print(y_classes[indices.item()])
+
+        print("Hello World")
 
     pass
 
