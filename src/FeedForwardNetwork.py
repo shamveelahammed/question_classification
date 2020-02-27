@@ -38,7 +38,10 @@ class Feedforward(torch.nn.Module):
             for epoch in range(epoch):
                 optimizer.zero_grad()       # Forward pass
                 y_pred = self(x)            # Compute Loss
-                # print(x.size())
+
+                # print('Predicted: {}'.format(y_pred))
+                # print('Actual: {}'.format(Y))
+
                 loss = criterion(y_pred.squeeze(), Y)
                 # print(loss)
                 print('Epoch {}: train loss: {}'.format(
@@ -53,6 +56,7 @@ class Feedforward(torch.nn.Module):
 
             endTimer = time.process_time()
             print('Time taken for training: {}'.format(endTimer))
+            return y_pred
 
         except KeyboardInterrupt:
             endTimer = time.process_time()

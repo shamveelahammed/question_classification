@@ -5,10 +5,16 @@ from argparse import ArgumentParser
 import torch
 import numpy as np
 
+# word embedding methods
 from BagOfWords import BagOfWords
 from WordEmbeddingLoader import WordEmbeddingLoader
+
+# Feed Forward Neural Network
 from FeedForwardNetwork import Feedforward
 # from FFN2 import Feedforward
+
+# evaluation
+from f1_loss import F1_Loss
 
 
 def build_parser():
@@ -106,11 +112,12 @@ def run_training(model, train_file, config_file, model_file):
     if model == 'bow':
         # Fixed parameter for testing.. K = 10, or Model type = 'Random' or 'Glove'
         word_to_index, embeddings = WordEmbeddingLoader.load(
-            data_path=train_file.name, random=True, frequency_threshold=10, vector_size=100)
+            data_path=train_file.name, random=False, frequency_threshold=10, vector_size=100)
         BOW = BagOfWords(embeddings, word_to_index)
 
         # Get Text embedding for training
         x_train, y_train_arr = get_text_embedding(BOW, train_file)
+        print(len(y_train_arr))
 
         # Get unique classes and do mapping a Class to an index,
         y_classes = np.unique(y_train_arr)
@@ -124,11 +131,14 @@ def run_training(model, train_file, config_file, model_file):
         model = Feedforward(x_train.shape[1], 100, y_classes.shape[0])
 
         # Training the model
-        model.fit(x_train, y_train)
+        y_pred = model.fit(x_train, y_train)
+
+        # evaluation - under development
+        # get_f_score(y_pred, y_train)
 
         # Export the model as a file
         model.eval()
-        torch.save(model, "model.bin")
+        torch.save(model, "model_champion.bin")
         print('The model has been exported to model.bin')
 
         # Done for testing the model, to be reomved later !
@@ -144,6 +154,25 @@ def run_training(model, train_file, config_file, model_file):
             print(y_classes[indices.item()])
 
     pass
+
+
+# under development
+def get_f_score(y_pred, y_actual):
+    # evaluation
+    y_pred_array = []
+    for y in y_pred:
+        pred = values, indices = torch.max(y, 0)
+        # get class index array
+        y_pred_array.append(indices.item())
+    print(y_pred_array[:10])
+    print(y_actual[:10])
+
+    # f1_evaluator = F1_Loss()
+    # # convert to np array
+    # y_pred_np = np.asarray(y_pred_array, dtype=np.float32)
+    # y_train_np = np.asarray(y_train_arr, dtype=np.float32)
+    # f1_train_score = f1_evaluator(y_pred_np, y_train_np)
+    # print('Final F Score: {}'.format(f1_train_score))
 
 
 def get_text_embedding(model, train_file):
