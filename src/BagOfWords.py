@@ -10,6 +10,7 @@ class BagOfWords():
         super(BagOfWords, self).__init__()
         
         self.embeddings = embeddings
+        self.vector_size = embeddings.embedding_dim 
         self.word_to_index = word_to_index
         self.stopwords = self._load_stopwords()
     
@@ -44,9 +45,9 @@ class BagOfWords():
         """
         label, sentence = self._split_on_label(sentence)
         words = self._tokenize(sentence)
-
+        
         # Initiate the sum of word vectors with an array of zeros.
-        sum_of_vectors = torch.zeros(100)
+        sum_of_vectors = torch.zeros(self.vector_size)
 
         # For each word, add it's vector element-wise to the sum of vectors.
         # If the word is not in the dictionary, add an array of -1
@@ -56,7 +57,7 @@ class BagOfWords():
                 word_vector = self.embeddings(word_index)
                 sum_of_vectors = torch.add(sum_of_vectors, word_vector)
             except KeyError:
-                sum_of_vectors = torch.add(sum_of_vectors, torch.rand(100).type(torch.FloatTensor))
+                sum_of_vectors = torch.add(sum_of_vectors, torch.rand(self.vector_size).type(torch.FloatTensor))
 
         # Return the element-wise average of the sum of vectors values.
         return torch.div(sum_of_vectors, len(words)), label
