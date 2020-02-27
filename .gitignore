@@ -3,3 +3,5 @@ data/glove.6B.100d.txt
 *.pt
 src/__pycache__
 .vscode/settings.json
+data/glove.small.txt
+src/model.bin
