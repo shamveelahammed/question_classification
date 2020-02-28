@@ -107,6 +107,9 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
 model.eval()
 # predict
 y_pred = model(x_test)
+print(y_pred.squeeze())
+print(y_test)
+exit()
 # calculate Loss: comparing predicted Labels to actual labels
 before_train = criterion(y_pred.squeeze(), y_test)
 print('Test loss before training', before_train.item())
