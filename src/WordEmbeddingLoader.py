@@ -1,5 +1,6 @@
 import csv
 import re
+import numpy as np
 from torch.nn import Embedding
 from torch import FloatTensor
 from numpy import random
@@ -49,8 +50,9 @@ class WordEmbeddingLoader():
             if word_freq[word] >= frequency_threshold:
                 word_to_index[word] = word_index
                 word_index += 1
-                weights.append(random.uniform(
-                    low=-10, high=10, size=(vector_size,)).tolist())
+                randomVector = random.uniform(
+                    low=-10, high=10, size=(vector_size,)).tolist()
+                weights.append(randomVector)
         weights = FloatTensor(weights)
 
         return word_to_index, weights
@@ -68,9 +70,20 @@ class WordEmbeddingLoader():
 
         for index, row in enumerate(csv_reader):
             word_to_index[row[0]] = index
-            word_weights = row[1].split()
-            weights.append([float(weight) for weight in word_weights])
+            # word_weights = row[1].split()
+
+            word_weights = np.fromstring(row[1], dtype=float, sep=' ')
+
+            # word_weights_list = [float(weight) for weight in word_weights]
+            # print(word_weights_list[0])
+            # print(type(word_weights_list[0]))
+            # print(word_weights_list[0])
+
+            # weights.append(word_weights_list)
+            weights.append(word_weights)
+            # print(weights[0])
 
         weights = FloatTensor(weights)
+        # print(weights[0])
 
         return word_to_index, weights

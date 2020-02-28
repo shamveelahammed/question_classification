@@ -23,16 +23,25 @@ class Feedforward(torch.nn.Module):
 
     def fit(self, x, Y):
         print('Training NN started')
-        criterion = torch.nn.CrossEntropyLoss()  # Hyper-parameter: loss function
+        criterion = torch.nn.CrossEntropyLoss()
+        # Hyper-parameter: loss function
         # Hyper-Parameter: learning algorthem and learing rate
         optimizer = torch.optim.SGD(self.parameters(), lr=0.1)
 
         # start timer
         startTimer = time.process_time()
 
+        print("Training data dimensions: {}".format(self.input_dim))
+        print("Training data shape: {}".format(x.shape))
+
+        # is this the magic line?
+        # x = torch.tensor(x, requires_grad=True)
+        # magic line
+        x = x.clone().detach().requires_grad_(True)
+
         self.train()  # Change to training mode
 
-        epoch = 150  # Hyper-parameter: number of Epochs
+        epoch = 400  # Hyper-parameter: number of Epochs
 
         try:
             for epoch in range(epoch):

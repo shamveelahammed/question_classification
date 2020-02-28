@@ -87,7 +87,11 @@ def run_training(config):
         BOW = BagOfWords(embeddings, word_to_index)
 
         # Get Text embedding for training
-        x_train, y_train_arr = get_text_embedding(BOW, config['train_file'])
+        # x_train_random, y_train_arr_random = get_text_embedding(
+        #     BOW_random, config['train_file'])
+
+        x_train, y_train_arr = get_text_embedding(
+            BOW, config['train_file'])
 
         # Get unique classes and do mapping a Class to an index,
         y_classes = np.unique(y_train_arr)
@@ -98,20 +102,24 @@ def run_training(config):
             np.array([dic[v] for v in y_train_arr])).long()
 
         # Create a model with hidden layer, with 75 neruons in a hidden layer (Hyper parameter)
-        model = Feedforward(x_train.shape[1], 100, y_classes.shape[0])
-        print(model)
+        # x_train.shape[1] is the dimension of the training data
+        model = Feedforward(x_train.shape[1], 1000, y_classes.shape[0])
 
         # Training the model
         y_pred = model.fit(x_train, y_train)
 
+        # debugging
+        # model = Feedforward(x_train_sliced.shape[1], 10, y_classes.shape[0])
+        # y_pred = model.fit(x_train_sliced, y_train_sliced)
+
         # evaluation - under development
         get_f_score(y_pred, y_train)
-        # exit()
 
         # Export the model as a file
         model.eval()
         torch.save(model, "model_1.bin")
         print('The model has been exported to model.bin')
+        print('Training complete.')
 
         # Done for testing the model, to be reomved later !
         print('Live Testing: Press Ctrl + C to exit !')
