@@ -1,5 +1,6 @@
 # evaluator = Evaluator(y_pred.squeeze(), y_test)
 # precision = evaluator.get_Precision()
+# del evaluator
 
 import torch
 import sys

@@ -2,6 +2,9 @@ import torch
 import sys
 import time
 
+# evaluation
+from Evaluator import Evaluator
+
 
 class Feedforward(torch.nn.Module):
     def __init__(self, input_dim, hidden_size, no_output_classes):
@@ -57,7 +60,7 @@ class Feedforward(torch.nn.Module):
 
         self.train()  # Change to training mode
 
-        epoch = 1000  # Hyper-parameter: number of Epochs
+        epoch = 10  # Hyper-parameter: number of Epochs
         try:
             for epoch in range(epoch):
                 optimizer.zero_grad()       # Forward pass
@@ -73,15 +76,16 @@ class Feedforward(torch.nn.Module):
                 # loss.backward(retain_graph=True)
                 loss.backward()
                 optimizer.step()
+
                 # calculate accuracy
+                evaluator = Evaluator(y_pred.squeeze(), Y)
+                precision = evaluator.get_Precision()
+                del evaluator
 
-                acc_count = self.get_accuracy(Y, y_pred.squeeze())
-                print("Correct predictions: {} / {}".format(acc_count, len(x)))
-                accuracy = (acc_count / len(x)) * 100
-
+                # print("Correct predictions: {} / {}".format(acc_count, len(x)))
                 # print info
                 print('Epoch {}: train loss: {} Accuracy: {}'.format(
-                    epoch, loss.item(), accuracy))
+                    epoch, loss.item(), precision))
 
             # end for
             endTimer = time.process_time()

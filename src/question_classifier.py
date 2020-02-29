@@ -87,9 +87,6 @@ def run_training(config):
         BOW = BagOfWords(embeddings, word_to_index)
 
         # Get Text embedding for training
-        # x_train_random, y_train_arr_random = get_text_embedding(
-        #     BOW_random, config['train_file'])
-
         x_train, y_train_arr = get_text_embedding(
             BOW, config['train_file'])
 
@@ -109,7 +106,7 @@ def run_training(config):
         y_pred = model.fit(x_train, y_train)
 
         # evaluation - under development
-        get_f_score(y_pred, y_train)
+        # get_f_score(y_pred, y_train)
 
         # Export the model as a file
         model.eval()
@@ -117,27 +114,6 @@ def run_training(config):
         torch.save(model, model_name)
         print('The model has been exported to {}'.format(model_name))
         print('Training complete.')
-
-
-# under development
-def get_f_score(y_pred, y_actual):
-    # evaluation
-    # print(y_pred)
-
-    y_pred_array = []
-    for y in y_pred:
-        pred = values, indices = torch.max(y, 0)
-        # get class index array
-        y_pred_array.append(indices.item())
-    # print(y_pred_array[:10])
-    # print(y_actual[:10])
-
-    # f1_evaluator = F1_Loss()
-    # # convert to np array
-    # y_pred_np = np.asarray(y_pred_array, dtype=np.float32)
-    # y_train_np = np.asarray(y_train_arr, dtype=np.float32)
-    # f1_train_score = f1_evaluator(y_pred_np, y_train_np)
-    # print('Final F Score: {}'.format(f1_train_score))
 
 
 def get_text_embedding(model, train_file):
