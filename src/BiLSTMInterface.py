@@ -2,6 +2,7 @@ import random
 import sys
 import time
 import torch
+import re
 import numpy as np
 import pandas as pd
 import torch.nn as nn
@@ -10,6 +11,8 @@ import torch.optim as optim
 from WordEmbeddingLoader  import WordEmbeddingLoader
 import sys
 from torch.autograd import Variable
+
+STOPWORDS = ["i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "you're", "you've", "you'll", "you'd", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "she's", "her", "hers", "herself", "it", "it's", "its", "itself", "they", "them", "their", "theirs", "themselves", "this", "that", "that'll", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "as", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "once", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "don't", "should", "should've", "now", "d", "ll", "m", "o", "re", "ve", "y", "ain", "aren", "aren't", "couldn", "couldn't", "didn", "didn't", "doesn", "doesn't", "hadn", "hadn't", "hasn", "hasn't", "haven", "haven't", "isn", "isn't", "ma", "mightn", "mightn't", "mustn", "mustn't", "needn", "needn't", "shan", "shan't", "shouldn", "shouldn't", "wasn", "wasn't", "weren", "weren't", "won", "won't", "wouldn", "wouldn't"]
 
 class BiLSTMInterface():
     def __init__(self, file_path):
@@ -21,19 +24,19 @@ class BiLSTMInterface():
     
     def to_vector(self, sentence):
         with torch.no_grad():
-            inputs = self.prepare_sequence(sentence.split())
+            inputs = self.prepare_sequence(_tokenize(sentence))
             return self.bilstm(inputs)
     
-    '''Saving the BiLSTM model '''
     def save_bilstm_to_binary(self, filepath):
+        """Save the BiLSTM model for dev purposes"""
         torch.save(self.bilstm, filepath)
     
-    '''Loading the BiLSTM model '''
     def load_bilstm_from_binary(self, filepath):
+        """Load the BiLSTM model for dev purposes"""
         self.bilstm = torch.load(filepath)
 
-    '''Creates and trains the BiLSTM model '''
     def load_and_train_bilstm(self, embedding_dim, hidden_dim, usePretrained=False):
+        """Create and load bilstm"""
         if usePretrained:
             _, embeddings = WordEmbeddingLoader._load_glove_weights()
             model = BiLSTM(embedding_dim, hidden_dim, len(self.word_to_index), len(self.label_to_index), embeddings)
@@ -97,12 +100,12 @@ class BiLSTMInterface():
 
     def load_training_data(self, file_path):
         training_data = []
-        fp = open(file_path, 'r', encoding='utf8')
+        fp = open(file_path, 'r', encoding='ISO-8859-1')
         
         for line in fp.readlines():
             label = line.split(' ', 1)[0]
             sentence = line.split(' ', 1)[1]
-            sentence = sentence.split()
+            sentence = _tokenize(sentence)
             training_data.append((sentence, label))
         
         fp.close()
@@ -158,6 +161,16 @@ class BiLSTM(nn.Module):
         label_scores = self.hidden2label(torch.cat([c_n[i,:, :] for i in range(c_n.shape[0])], dim=1))
         return label_scores
 
+def _tokenize(sentence):
+    """
+    Tokenize input sentence as a string to an array of individual words.
+    """
+    if sentence is None:
+        raise ValueError('Input sentence cannot be None')
+    if sentence == '':
+        return []
+    return [word.lower() for word in re.sub("[^\w]", " ", sentence).split() if word not in STOPWORDS]
+
 ## Testing
 EMBEDDING_DIM = 300
 HIDDEN_DIM = 150
@@ -165,7 +178,7 @@ bilstm = BiLSTMInterface('../data/train_label.txt')
 bilstm.load_and_train_bilstm(EMBEDDING_DIM, HIDDEN_DIM, usePretrained=False)
 bilstm.save_bilstm_to_binary('data_bilstm.bin')
 
-# bilstm2 = BiLSTMInterface('../data/train_label.txt')
-# bilstm2.load_bilstm_from_binary('data_bilstm.bin')
-# print(bilstm2.to_vector('How did serfdom develop in and then leave Russia ?'))
-# print(bilstm2.to_vector('What is the date of Boxing Day ?'))
+bilstm2 = BiLSTMInterface('../data/train_label.txt')
+bilstm2.load_bilstm_from_binary('data_bilstm.bin')
+print(bilstm2.to_vector('How did serfdom develop in and then leave Russia ?'))
+print(bilstm2.to_vector('What is the date of Boxing Day ?'))
