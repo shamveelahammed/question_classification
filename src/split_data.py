@@ -7,7 +7,10 @@ def split_huge_file(file,out1,out2,percentage=0.90,seed=123):
          open('../data/%s' % out1, 'w',encoding = "ISO-8859-1") as foutTrain, \
          open('../data/%s' % out2, 'w',encoding = "ISO-8859-1") as foutTest:
 
-        for line in fin:
+        lines = fin.readlines()
+        random.shuffle(lines)
+
+        for line in lines:
             r = random.random() 
             if r < percentage:
                 foutTrain.write(line)
