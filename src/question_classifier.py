@@ -15,7 +15,7 @@ from FeedForwardNetwork import Feedforward
 # from FFN2 import Feedforward
 
 # evaluation
-from f1_loss import F1_Loss
+from Evaluator import Evaluator
 
 
 def build_parser():
@@ -196,30 +196,21 @@ def run_testing(config):
         # predict test data
         y_pred = model.predict(x_test)
 
-        print(y_test)
-        print(y_pred.squeeze())
-        exit()
+        # print(y_test)
+        # print(y_pred.squeeze())
+        # exit()
 
         # evaluation
-        #get_f_score(y_pred, y_test)
-        acc_count = get_accuracy(y_test, y_pred.squeeze())
         after_train_loss = criterion(y_pred.squeeze(), y_test)
-        accuracy = (acc_count / len(y_test)) * 100
+
+        # Evaluator
+        evaluator = Evaluator(y_pred.squeeze(), y_test)
+        precision = evaluator.get_Precision()
 
         # print info
         print('Test loss after Training', after_train_loss.item())
         print("Correct predictions: {} / {}".format(acc_count, len(x_test)))
-        print('Test Accuracy: {}'.format(accuracy))
-
-
-def get_accuracy(truth, pred):
-    assert len(truth) == len(pred)
-    right = 0
-    for i in range(len(truth)):
-        values, indices = torch.max(pred[i], 0)
-        if truth[i].item() == indices.item():
-            right += 1.0
-    return right
+        print('Precision: {}'.format(precision))
 
 
 if __name__ == "__main__":
@@ -254,3 +245,12 @@ if __name__ == "__main__":
 #     pred = values, indices = torch.max(output[0], 0)
 #     # print(pred)
 #     # print(y_classes[indices.item()])
+
+# def get_accuracy(truth, pred):
+# assert len(truth) == len(pred)
+# right = 0
+# for i in range(len(truth)):
+#     values, indices = torch.max(pred[i], 0)
+#     if truth[i].item() == indices.item():
+#         right += 1.0
+# return right
