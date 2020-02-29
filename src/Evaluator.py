@@ -35,6 +35,6 @@ class Evaluator():
             if pred == self.actual_labels[idx].item():
                 correct += 1.0
         precision = (correct)/(len(self.actual_labels)) * 100
-        return precision
+        return correct, precision
 
     # def get_f_score

@@ -79,34 +79,22 @@ def run_training(config):
     TODO: This is just a stub - complete with relevant calls for processing (word embeddings, bow/bilstm) and training
     """
 
-    # In case of using Bag of words
+    embedding_params = {
+        "data_path": config['train_file'],
+        "random": False,
+        "frequency_threshold": 10,
+        "vector_size": 100
+    }
+
+    # Bag of words
     if config['model'] == 'bow':
-        # Fixed parameter for testing.. K = 10, or Model type = 'Random' or 'Glove'
-        word_to_index, embeddings = WordEmbeddingLoader.load(
-            data_path=config['train_file'], random=False, frequency_threshold=10, vector_size=100)
-        BOW = BagOfWords(embeddings, word_to_index)
 
-        # Get Text embedding for training
-        x_train, y_train_arr = get_text_embedding(
-            BOW, config['train_file'])
-
-        # Get unique classes and do mapping a Class to an index,
-        y_classes = np.unique(y_train_arr)
-        dic = dict(zip(y_classes, list(range(0, len(y_classes)+1))))
-
-        # Convert Classes' array to Tensor
-        y_train = torch.from_numpy(
-            np.array([dic[v] for v in y_train_arr])).long()
-
-        # Create a model with hidden layer, with 75 neruons in a hidden layer (Hyper parameter)
-        # x_train.shape[1] is the dimension of the training data
-        model = Feedforward(x_train.shape[1], 500, y_classes.shape[0])
+        # takes 3 arguments: hidden layer sizes, embedding params, and epoch
+        model = Feedforward(500, embedding_params, 1000)
 
         # Training the model
-        y_pred = model.fit(x_train, y_train)
-
-        # evaluation - under development
-        # get_f_score(y_pred, y_train)
+        # return model with best accuracy
+        model = model.fit()
 
         # Export the model as a file
         model.eval()
@@ -116,76 +104,51 @@ def run_training(config):
         print('Training complete.')
 
 
-def get_text_embedding(model, train_file):
-
-    print('Started loading text embedding...')
-
-    # Arrays to have trainings/labels
-    x_train_arr = []
-    y_train_arr = []
-
-    # Go Through training examples in the file
-    with open(train_file,  encoding="ISO-8859-1") as fp:
-        next_line = fp.readline()
-        while next_line:
-            # Get word embbedding for this sentence using passed model
-            word_vec, label = model.get_vector(next_line)
-            x_train_arr.append(word_vec.squeeze())
-            y_train_arr.append(label)
-            next_line = fp.readline()
-
-    x_train = torch.stack(x_train_arr)
-    print('Finished loading text embedding...')
-    return x_train, y_train_arr
-
-
 def run_testing(config):
     """
     TODO: This is just a stub - complete with relevant calls for processing (word embeddings, bow/bilstm) and testing
     """
     if config['model'] == 'bow':
+        assert config['trained_model'] != ""
 
-        # Fixed parameter for testing.. K = 10, or Model type = 'Random' or 'Glove'
-        word_to_index, embeddings = WordEmbeddingLoader.load(
-            data_path=config['test_file'], random=False, frequency_threshold=10)
-        BOW = BagOfWords(embeddings, word_to_index)
+        # load model
+        model = torch.load(config['trained_model'])
 
-        # # Get Text embedding for testing
-        x_test, y_test_arr = get_text_embedding(BOW, config['test_file'])
-        # # Get unique classes and do mapping Class to an index,
-        y_classes = np.unique(y_test_arr)
-        dic = dict(zip(y_classes, list(range(0, len(y_classes)+1))))
+        print('Model {} has been loaded...'.format(config['trained_model']))
+        print(model)
+        # Get Model score
+        criterion = torch.nn.CrossEntropyLoss()
+
+        # evaluation mode
+        model.eval()
+
+        # use model's BOW
+        BOW = model.BOW
+
+        # Get Text embedding for testing
+        x_test, y_test_arr = model._get_text_embedding(
+            BOW, config['test_file'])
+
+        # use model's pre loaded class dictionary
+        dic = model.class_dictionary
 
         # Convert arrays to Tensors
         y_test = torch.from_numpy(
             np.array([dic[v] for v in y_test_arr])).long()
 
-        assert config['trained_model'] != ""
-
-        model = torch.load(config['trained_model'])
-        print('Model has been loaded...')
-        print(model)
-        # # Get Model score
-        criterion = torch.nn.CrossEntropyLoss()
-        model.eval()
-
         # predict test data
         y_pred = model.predict(x_test)
-
-        # print(y_test)
-        # print(y_pred.squeeze())
-        # exit()
 
         # evaluation
         after_train_loss = criterion(y_pred.squeeze(), y_test)
 
         # Evaluator
         evaluator = Evaluator(y_pred.squeeze(), y_test)
-        precision = evaluator.get_Precision()
+        correct_count, precision = evaluator.get_Precision()
 
         # print info
-        print('Test loss after Training', after_train_loss.item())
-        print("Correct predictions: {} / {}".format(acc_count, len(x_test)))
+        print('Test loss: ', after_train_loss.item())
+        print("Correct predictions: {} / {}".format(correct_count, len(x_test)))
         print('Precision: {}'.format(precision))
 
 
@@ -209,18 +172,6 @@ if __name__ == "__main__":
 #     print(y_classes[indices.item()])
 
 # print("Hello World")
-
-# Done for testing the model, to be reomved later !
-# print('Live Testing: Press Ctrl + C to exit !')
-# while True:
-#     print('Please Insert a question to be classified: ')
-#     question = input()
-#     # Test the model
-#     input_test, y = BOW.get_vector('asd:asd ' + question)
-#     output = model.predict(input_test)
-#     pred = values, indices = torch.max(output[0], 0)
-#     # print(pred)
-#     # print(y_classes[indices.item()])
 
 # def get_accuracy(truth, pred):
 # assert len(truth) == len(pred)
