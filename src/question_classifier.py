@@ -149,7 +149,7 @@ def get_text_embedding(model, train_file):
     y_train_arr = []
 
     # Go Through training examples in the file
-    with open(train_file) as fp:
+    with open(train_file,  encoding="ISO-8859-1") as fp:
         next_line = fp.readline()
         while next_line:
             # Get word embbedding for this sentence using passed model
