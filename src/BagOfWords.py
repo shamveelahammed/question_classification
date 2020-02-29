@@ -14,14 +14,6 @@ class BagOfWords():
         self.embeddings = embeddings
         self.vector_size = embeddings.embedding_dim 
         self.word_to_index = word_to_index
-        self.stopwords = self._load_stopwords()
-    
-    def _load_stopwords(self):
-        """
-        Load stopwords list from file.
-        """
-        stopwords_file = open('../data/stopwords.txt', encoding = "ISO-8859-1")
-        return [line for line in stopwords_file.readlines()]
 
     def _tokenize(self, sentence):
         """
