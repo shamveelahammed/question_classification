@@ -18,13 +18,6 @@ def split_huge_file(file,out1,out2,percentage=0.90,seed=123):
                 foutTest.write(line)
 
 if __name__== "__main__":
-    split_huge_file('train_5500.label.txt','train_validation_label.txt','test_label.txt')
-    split_huge_file('train_validation_label.txt','train_label.txt','validation_label.txt')
-    os.remove('../data/train_validation_label.txt')
-
-
-
-
-
-
-
+    split_huge_file('train_5500.label.txt','train_dev.txt','test.txt')
+    split_huge_file('train_dev.txt','train.txt','dev.txt')
+    os.remove('../data/train_dev.txt')
