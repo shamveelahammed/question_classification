@@ -42,7 +42,7 @@ from WordEmbeddingLoader import WordEmbeddingLoader
 
 # random is by default False - which points to GloVe.
 # data_path and frequency_threshold are by default None, as they are not needed for Glove.
-word_to_index, embedding = WordEmbeddingLoader.load(random=True, data_path='data\\train_label.txt', frequency_threshold=2)
+word_to_index, embedding = WordEmbeddingLoader.load(random=True, data_path='data/train.txt', frequency_threshold=2)
 index = LongTensor([word_to_index['name']])
 print(embedding(index))
 ```
