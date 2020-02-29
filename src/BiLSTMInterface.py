@@ -174,11 +174,11 @@ def _tokenize(sentence):
 ## Testing
 EMBEDDING_DIM = 300
 HIDDEN_DIM = 150
-bilstm = BiLSTMInterface('../data/train_label.txt')
+bilstm = BiLSTMInterface('../data/train.txt')
 bilstm.load_and_train_bilstm(EMBEDDING_DIM, HIDDEN_DIM, usePretrained=False)
 bilstm.save_bilstm_to_binary('data_bilstm.bin')
 
-bilstm2 = BiLSTMInterface('../data/train_label.txt')
+bilstm2 = BiLSTMInterface('../data/train.txt')
 bilstm2.load_bilstm_from_binary('data_bilstm.bin')
 print(bilstm2.to_vector('How did serfdom develop in and then leave Russia ?'))
 print(bilstm2.to_vector('What is the date of Boxing Day ?'))
