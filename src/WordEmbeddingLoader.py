@@ -6,7 +6,6 @@ from torch import FloatTensor
 from numpy import random
 from collections import defaultdict
 
-
 class WordEmbeddingLoader():
     def load(freeze=False, random=False, data_path=None, frequency_threshold=None, vector_size=None):
         """
@@ -37,7 +36,7 @@ class WordEmbeddingLoader():
         # Compute histogram of words in training dataset.
         word_freq = defaultdict(lambda: 0)
         for line in data:
-            words = [word.lower() for word in line.split()]  # tokenize
+            words = _tokenize(line)  # tokenize
             for word in words:
                 word_freq[word] += 1
 
@@ -87,3 +86,13 @@ class WordEmbeddingLoader():
         # print(weights[0])
 
         return word_to_index, weights
+
+def _tokenize(sentence):
+    """
+    Tokenize input sentence as a string to an array of individual words.
+    """
+    if sentence is None:
+        raise ValueError('Input sentence cannot be None')
+    if sentence == '':
+        return []
+    return [word.lower() for word in re.sub("[^\w]", " ", sentence).split() if word not in STOPWORDS]
