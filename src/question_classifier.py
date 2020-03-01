@@ -1,4 +1,4 @@
-# train --config_file parameter.config
+# python question_classifier.py train --config_file parameter.config
 
 
 from argparse import ArgumentParser
@@ -78,17 +78,25 @@ def run_training(config):
     """
     TODO: This is just a stub - complete with relevant calls for processing (word embeddings, bow/bilstm) and training
     """
-
+    # parameter initialisations
     embedding_params = {
-        "model":    config['model'],
+        "method":    config['method'],
         "data_path": config['train_file'],
         "random":  (config['bow_init_method'] == 'random'),
         "frequency_threshold": config['bow_frequency_threshold'],
         "vector_size": config['weights_vector_size']
     }
+    maxEpoch = config['maxepoch']
+    learningRate = config['learningRate']
 
+    # there are 3 layers, hence list must have 3 values
+    hidden_layer_sizes = config['hidden_layer_sizes']
+
+    # create NN Classifier Instance
     # takes 3 arguments: hidden layer sizes, embedding params, epoch, and learning rate
-    model = Feedforward(100, embedding_params, 250, 0.5)
+    model = Feedforward(hidden_layer_sizes,
+                        embedding_params, maxEpoch, learningRate)
+    print(model)
 
     # Training the model
     # return model with best accuracy
@@ -106,7 +114,6 @@ def run_testing(config):
     """
     TODO: This is just a stub - complete with relevant calls for processing (word embeddings, bow/bilstm) and testing
     """
-    # if config['model'] == 'bow':
     assert config['trained_model'] != ""
 
     # load model
@@ -114,7 +121,7 @@ def run_testing(config):
 
     print('Model {} has been loaded...'.format(config['trained_model']))
     print(model)
-    # Get Model score
+    # Loss Function
     criterion = torch.nn.CrossEntropyLoss()
 
     # evaluation mode
@@ -143,11 +150,19 @@ def run_testing(config):
     # Evaluator
     evaluator = Evaluator(y_pred.squeeze(), y_test)
     correct_count, precision = evaluator.get_Precision()
+    f1 = evaluator.get_f1_score()
+
+    # for confusion matrix purposes
+    print("Predicted:")
+    print(evaluator.predicted_labels)
+    print("Actual:")
+    print(evaluator.actual_labels.tolist())
 
     # print info
     print('Test loss: ', after_train_loss.item())
     print("Correct predictions: {} / {}".format(correct_count, len(x_test)))
     print('Precision: {}'.format(precision))
+    print('F1 micro Score: {}'.format(f1))
 
 
 if __name__ == "__main__":

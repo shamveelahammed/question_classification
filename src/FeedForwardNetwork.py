@@ -16,9 +16,11 @@ from Evaluator import Evaluator
 
 class Feedforward(torch.nn.Module):
     # def __init__(self, input_dim, hidden_size, no_output_classes, embedding_params):
-    def __init__(self, hidden_size, embedding_params, epoch, learning_rate):
+    def __init__(self, hidden_sizes, embedding_params, epoch, learning_rate):
         super(Feedforward, self).__init__()
-        self.hidden_size = hidden_size
+
+        assert len(hidden_sizes) == 3
+
         self.embedding_params = embedding_params
         self.epoch = epoch
         self.learning_rate = learning_rate
@@ -34,17 +36,19 @@ class Feedforward(torch.nn.Module):
             random=self.embedding_params['random'],
             frequency_threshold=self.embedding_params['frequency_threshold'],
             vector_size=self.embedding_params['vector_size'])
-        
+
         # Loading sentences model which is either bow or BiLTSM
-        if embedding_params['model'] == 'bow':
-            self.sentence_model = BagOfWords(self.embeddings, self.word_to_index)
+        if embedding_params['method'] == 'bow':
+            self.sentence_model = BagOfWords(
+                self.embeddings, self.word_to_index)
         else:
             EMBEDDING_DIM = 300
             HIDDEN_DIM = 150
-            self.sentence_model = BiLSTMInterface(self.embedding_params['data_path'])
+            self.sentence_model = BiLSTMInterface(
+                self.embedding_params['data_path'])
             print('Training for BiLTSM has started..')
             #self.sentence_model.load_and_train_bilstm(EMBEDDING_DIM, HIDDEN_DIM, usePretrained=False)
-            #self.sentence_model.save_bilstm_to_binary('data_bilstm.bin')
+            # self.sentence_model.save_bilstm_to_binary('data_bilstm.bin')
             self.sentence_model.load_bilstm_from_binary('data_bilstm.bin')
             print('Training for BiLTSM has ended and the model saved to data_bilstm.bin')
             self.sentence_model.bilstm.eval()
@@ -55,9 +59,11 @@ class Feedforward(torch.nn.Module):
         self.input_dim = self.x.shape[1]
         self.no_output_classes = len(self.class_dictionary)
 
-        # extra layers
-        self.hidden_size2 = int(self.hidden_size)
-        self.hidden_size3 = int(self.hidden_size)
+        # layer sizes
+        self.hidden_size = hidden_sizes[0]
+        # self.hidden_size2 = int(self.hidden_size)
+        self.hidden_size2 = hidden_sizes[1]
+        self.hidden_size3 = hidden_sizes[2]
 
         # Layers of Nerual network
         # hidden layer 1
@@ -96,7 +102,7 @@ class Feedforward(torch.nn.Module):
         criterion = torch.nn.CrossEntropyLoss()
         # Hyper-parameter: loss function
         # Hyper-Parameter: learning algorthem and learing rate
-        optimizer = torch.optim.SGD(self.parameters(), lr = self.learning_rate)
+        optimizer = torch.optim.SGD(self.parameters(), lr=self.learning_rate)
 
         # start timer
         startTimer = time.process_time()
@@ -130,12 +136,13 @@ class Feedforward(torch.nn.Module):
                 # calculate accuracy
                 evaluator = Evaluator(y_pred.squeeze(), self.y)
                 correct_count, precision = evaluator.get_Precision()
+                f1 = evaluator.get_f1_score()
                 del evaluator
 
-                # print("Correct predictions: {} / {}".format(acc_count, len(x)))
+                print("Correct predictions: {} / {}".format(correct_count, len(self.x)))
                 # print info
-                print('Epoch {}: train loss: {} Accuracy: {}'.format(
-                    epoch, loss.item(), precision))
+                print('Epoch {}: train loss: {} Precision: {} F1 Micro: {}'.format(
+                    epoch, loss.item(), precision, f1))
 
                 # select the best model
                 # if precision > self.bestTrainAccuracy:
