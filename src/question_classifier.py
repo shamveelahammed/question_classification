@@ -90,7 +90,7 @@ def run_training(config):
     if config['model'] == 'bow':
 
         # takes 3 arguments: hidden layer sizes, embedding params, and epoch
-        model = Feedforward(500, embedding_params, 1000)
+        model = Feedforward(1000, embedding_params, 1000)
 
         # Training the model
         # return model with best accuracy

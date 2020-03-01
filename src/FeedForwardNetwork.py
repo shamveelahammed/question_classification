@@ -38,8 +38,9 @@ class Feedforward(torch.nn.Module):
         self.input_dim = self.x.shape[1]
         self.no_output_classes = len(self.class_dictionary)
 
-        # extra layer
-        self.hidden_size2 = int(self.hidden_size * 2)
+        # extra layers
+        self.hidden_size2 = int(self.hidden_size)
+        self.hidden_size3 = int(self.hidden_size)
 
         # Layers of Nerual network
         # hidden layer 1
@@ -48,8 +49,10 @@ class Feedforward(torch.nn.Module):
         self.relu = torch.nn.ReLU()
         # hidden layer 2
         self.fc2 = torch.nn.Linear(self.hidden_size, self.hidden_size2)
+        # hidden layer 3
+        self.fc3 = torch.nn.Linear(self.hidden_size2, self.hidden_size3)
         # output
-        self.fc3 = torch.nn.Linear(self.hidden_size2, self.no_output_classes)
+        self.fc4 = torch.nn.Linear(self.hidden_size3, self.no_output_classes)
         # self.softmax = torch.nn.Softmax(dim=1)
 
     def forward(self, x):
@@ -61,12 +64,17 @@ class Feedforward(torch.nn.Module):
         hidden2 = self.fc2(relu1)
         relu2 = self.relu(hidden2)
 
+        # hidden layer 3
+        hidden3 = self.fc3(relu2)
+        relu3 = self.relu(hidden3)
+
         # output layer
-        output = self.fc3(relu2)
+        output = self.fc4(relu3)
         return output
 
     def fit(self):
-        self.train()  # Change to training mode
+        # Change to training mode
+        self.train()
         print('Training NN started')
         criterion = torch.nn.CrossEntropyLoss()
         # Hyper-parameter: loss function
