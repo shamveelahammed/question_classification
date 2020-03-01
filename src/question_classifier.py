@@ -80,76 +80,74 @@ def run_training(config):
     """
 
     embedding_params = {
+        "model":    config['model'],
         "data_path": config['train_file'],
-        "random": False,
-        "frequency_threshold": 10,
-        "vector_size": 100
+        "random":  (config['bow_init_method'] == 'random'),
+        "frequency_threshold": config['bow_frequency_threshold'],
+        "vector_size": config['weights_vector_size']
     }
 
-    # Bag of words
-    if config['model'] == 'bow':
+    # takes 3 arguments: hidden layer sizes, embedding params, epoch, and learning rate
+    model = Feedforward(100, embedding_params, 250, 0.5)
 
-        # takes 3 arguments: hidden layer sizes, embedding params, and epoch
-        model = Feedforward(1000, embedding_params, 1000)
+    # Training the model
+    # return model with best accuracy
+    model = model.fit()
 
-        # Training the model
-        # return model with best accuracy
-        model = model.fit()
-
-        # Export the model as a file
-        model.eval()
-        model_name = config['save_model_as']
-        torch.save(model, model_name)
-        print('The model has been exported to {}'.format(model_name))
-        print('Training complete.')
+    # Export the model as a file
+    model.eval()
+    model_name = config['save_model_as']
+    torch.save(model, model_name)
+    print('The model has been exported to {}'.format(model_name))
+    print('Training complete.')
 
 
 def run_testing(config):
     """
     TODO: This is just a stub - complete with relevant calls for processing (word embeddings, bow/bilstm) and testing
     """
-    if config['model'] == 'bow':
-        assert config['trained_model'] != ""
+    # if config['model'] == 'bow':
+    assert config['trained_model'] != ""
 
-        # load model
-        model = torch.load(config['trained_model'])
+    # load model
+    model = torch.load(config['trained_model'])
 
-        print('Model {} has been loaded...'.format(config['trained_model']))
-        print(model)
-        # Get Model score
-        criterion = torch.nn.CrossEntropyLoss()
+    print('Model {} has been loaded...'.format(config['trained_model']))
+    print(model)
+    # Get Model score
+    criterion = torch.nn.CrossEntropyLoss()
 
-        # evaluation mode
-        model.eval()
+    # evaluation mode
+    model.eval()
 
-        # use model's BOW
-        BOW = model.BOW
+    # use model's BOW
+    BOW = model.sentence_model
 
-        # Get Text embedding for testing
-        x_test, y_test_arr = model._get_text_embedding(
-            BOW, config['test_file'])
+    # Get Text embedding for testing
+    x_test, y_test_arr = model._get_text_embedding(
+        BOW, config['test_file'])
 
-        # use model's pre loaded class dictionary
-        dic = model.class_dictionary
+    # use model's pre loaded class dictionary
+    dic = model.class_dictionary
 
-        # Convert arrays to Tensors
-        y_test = torch.from_numpy(
-            np.array([dic[v] for v in y_test_arr])).long()
+    # Convert arrays to Tensors
+    y_test = torch.from_numpy(
+        np.array([dic[v] for v in y_test_arr])).long()
 
-        # predict test data
-        y_pred = model.predict(x_test)
+    # predict test data
+    y_pred = model.predict(x_test)
 
-        # evaluation
-        after_train_loss = criterion(y_pred.squeeze(), y_test)
+    # evaluation
+    after_train_loss = criterion(y_pred.squeeze(), y_test)
 
-        # Evaluator
-        evaluator = Evaluator(y_pred.squeeze(), y_test)
-        correct_count, precision = evaluator.get_Precision()
+    # Evaluator
+    evaluator = Evaluator(y_pred.squeeze(), y_test)
+    correct_count, precision = evaluator.get_Precision()
 
-        # print info
-        print('Test loss: ', after_train_loss.item())
-        print("Correct predictions: {} / {}".format(correct_count, len(x_test)))
-        print('Precision: {}'.format(precision))
+    # print info
+    print('Test loss: ', after_train_loss.item())
+    print("Correct predictions: {} / {}".format(correct_count, len(x_test)))
+    print('Precision: {}'.format(precision))
 
 
 if __name__ == "__main__":

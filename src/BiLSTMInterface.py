@@ -22,11 +22,20 @@ class BiLSTMInterface():
         self.max_sentence_length = max(len(sentence) for sentence, _ in self.training_data)
         self.bilstm = None
     
-    def to_vector(self, sentence):
+    def get_vector(self, sentence):
+        label, sentence = self._split_on_label(sentence)
         with torch.no_grad():
             inputs = self.prepare_sequence(_tokenize(sentence))
-            return self.bilstm(inputs)
-    
+            return self.bilstm(inputs),label
+
+    def _split_on_label(self, sentence):
+        """ 
+        Specific function to split only sentences with the format 'LABEL:label words words words words' into label and sentence.
+        """
+        if not re.match('(\w+):(\w+)', sentence):
+            return 'UNKNOWN', sentence
+        return sentence.split(' ', 1)[0], sentence.split(' ', 1)[1]
+
     def save_bilstm_to_binary(self, filepath):
         """Save the BiLSTM model for dev purposes"""
         torch.save(self.bilstm, filepath)
@@ -172,13 +181,13 @@ def _tokenize(sentence):
     return [word.lower() for word in re.sub("[^\w]", " ", sentence).split() if word not in STOPWORDS]
 
 ## Testing
-EMBEDDING_DIM = 300
-HIDDEN_DIM = 150
-bilstm = BiLSTMInterface('../data/train.txt')
-bilstm.load_and_train_bilstm(EMBEDDING_DIM, HIDDEN_DIM, usePretrained=False)
-bilstm.save_bilstm_to_binary('data_bilstm.bin')
+# EMBEDDING_DIM = 300
+# HIDDEN_DIM = 150
+# bilstm = BiLSTMInterface('../data/train.txt')
+# bilstm.load_and_train_bilstm(EMBEDDING_DIM, HIDDEN_DIM, usePretrained=False)
+# bilstm.save_bilstm_to_binary('data_bilstm.bin')
 
-bilstm2 = BiLSTMInterface('../data/train.txt')
-bilstm2.load_bilstm_from_binary('data_bilstm.bin')
-print(bilstm2.to_vector('How did serfdom develop in and then leave Russia ?'))
-print(bilstm2.to_vector('What is the date of Boxing Day ?'))
+# bilstm2 = BiLSTMInterface('../data/train.txt')
+# bilstm2.load_bilstm_from_binary('data_bilstm.bin')
+# print(bilstm2.to_vector('How did serfdom develop in and then leave Russia ?'))
+# print(bilstm2.to_vector('What is the date of Boxing Day ?'))
