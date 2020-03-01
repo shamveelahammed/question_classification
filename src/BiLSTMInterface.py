@@ -25,7 +25,6 @@ class BiLSTMInterface():
     def get_vector(self, sentence):
         label, sentence = self._split_on_label(sentence)
         with torch.no_grad():
-            print(sentence)
             inputs = self.prepare_sequence(_tokenize(sentence))
             return self.bilstm(inputs),label
 
