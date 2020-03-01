@@ -7,17 +7,21 @@ import numpy as np
 from BagOfWords import BagOfWords
 from WordEmbeddingLoader import WordEmbeddingLoader
 
+# BiLTSM
+from BiLSTMInterface import BiLSTMInterface
+
 # evaluation
 from Evaluator import Evaluator
 
 
 class Feedforward(torch.nn.Module):
     # def __init__(self, input_dim, hidden_size, no_output_classes, embedding_params):
-    def __init__(self, hidden_size, embedding_params, epoch):
+    def __init__(self, hidden_size, embedding_params, epoch, learning_rate):
         super(Feedforward, self).__init__()
         self.hidden_size = hidden_size
         self.embedding_params = embedding_params
         self.epoch = epoch
+        self.learning_rate = learning_rate
 
         # getting best model
         self.bestTrainAccuracy = 0
@@ -30,8 +34,21 @@ class Feedforward(torch.nn.Module):
             random=self.embedding_params['random'],
             frequency_threshold=self.embedding_params['frequency_threshold'],
             vector_size=self.embedding_params['vector_size'])
+        
+        # Loading sentences model which is either bow or BiLTSM
+        if embedding_params['model'] == 'bow':
+            self.sentence_model = BagOfWords(self.embeddings, self.word_to_index)
+        else:
+            EMBEDDING_DIM = 300
+            HIDDEN_DIM = 150
+            self.sentence_model = BiLSTMInterface(self.embedding_params['data_path'])
+            print('Training for BiLTSM has started..')
+            #self.sentence_model.load_and_train_bilstm(EMBEDDING_DIM, HIDDEN_DIM, usePretrained=False)
+            #self.sentence_model.save_bilstm_to_binary('data_bilstm.bin')
+            self.sentence_model.load_bilstm_from_binary('data_bilstm.bin')
+            print('Training for BiLTSM has ended and the model saved to data_bilstm.bin')
+            self.sentence_model.bilstm.eval()
 
-        self.BOW = BagOfWords(self.embeddings, self.word_to_index)
         self.x, self.y, self.class_dictionary = self._getClassDictionary()
 
         # input and output dimensions
@@ -71,7 +88,7 @@ class Feedforward(torch.nn.Module):
         criterion = torch.nn.CrossEntropyLoss()
         # Hyper-parameter: loss function
         # Hyper-Parameter: learning algorthem and learing rate
-        optimizer = torch.optim.SGD(self.parameters(), lr=0.5)
+        optimizer = torch.optim.SGD(self.parameters(), lr = self.learning_rate)
 
         # start timer
         startTimer = time.process_time()
@@ -136,7 +153,7 @@ class Feedforward(torch.nn.Module):
 
     def _getClassDictionary(self):
         x_train, y_train_arr = self._get_text_embedding(
-            self.BOW, self.embedding_params['data_path'])
+            self.sentence_model, self.embedding_params['data_path'])
 
         y_classes = np.unique(y_train_arr)
         dic = dict(zip(y_classes, list(range(0, len(y_classes)+1))))
