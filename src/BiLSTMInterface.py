@@ -126,6 +126,7 @@ class BiLSTMInterface():
             for word in sentence:
                 if word not in word_to_index:
                     word_to_index[word] = len(word_to_index)
+        word_to_index['#UNK#'] = len(word_to_index)
         return word_to_index
     
     def build_label_to_index(self):
@@ -141,7 +142,7 @@ class BiLSTMInterface():
             if word in self.word_to_index.keys():
                 indexes.append(self.word_to_index[word])
             else:
-                indexes.append(len(self.word_to_index[word])+1)    
+                indexes.append(self.word_to_index['#UNK#'])    
         return torch.tensor(indexes, dtype=torch.long)
     
     def prepare_labels(self, label):
