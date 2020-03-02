@@ -58,7 +58,7 @@ def train_model(args):
 
     # Call run_training
     run_training(config=config)
-    run_validation(config=config)
+    # run_validation(config=config)
 
 
 def test_model(args):
@@ -102,51 +102,78 @@ def run_training(config):
     # Training the model
     # return model with best accuracy
     model = model.fit()
-    
+
     # Not required to save during training
-    # # Export the model as a file
-    # model.eval()
-    # model_name = config['save_model_as']
-    # torch.save(model, model_name)
-    # print('The model has been exported to {}'.format(model_name))
-    
-    print('-----------Training complete-----------')
-
-def run_validation(config):
-    """
-    TODO: This is just a stub - complete with relevant calls for processing (word embeddings, bow/bilstm) and testing against validation
-    """
-    # parameter initialisations
-    embedding_params = {
-        "method":    config['method'],
-        "data_path": config['dev_file'],
-        "random":  (config['bow_init_method'] == 'random'),
-        "frequency_threshold": config['bow_frequency_threshold'],
-        "vector_size": config['weights_vector_size']
-    }
-    maxEpoch = config['maxepoch']
-    learningRate = config['learningRate']
-
-    # there are 3 layers, hence list must have 3 values
-    hidden_layer_sizes = config['hidden_layer_sizes']
-
-    # create NN Classifier Instance
-    # takes 3 arguments: hidden layer sizes, embedding params, epoch, and learning rate
-    model = Feedforward(hidden_layer_sizes,
-                        embedding_params, maxEpoch, learningRate)
-    print(model)
-
-    # Training the model
-    # return model with best accuracy
-    model = model.fit()
-
     # Export the model as a file
     model.eval()
     model_name = config['save_model_as']
     torch.save(model, model_name)
+    print('-----------Training complete-----------')
     print('The model has been exported to {}'.format(model_name))
-    print('-----------Validation complete-----------')
 
+    print('-----------Running Validation-----------')
+    validationScore = run_validation(config, model)
+    print('Validation Score: {}'.format(validationScore * 100))
+
+
+def run_validation(config, model):
+    """
+    TODO: This is just a stub - complete with relevant calls for processing (word embeddings, bow/bilstm) and testing against validation
+    """
+    # parameter initialisations
+    # embedding_params = {
+    #     "method":    config['method'],
+    #     "data_path": config['dev_file'],
+    #     "random":  (config['bow_init_method'] == 'random'),
+    #     "frequency_threshold": config['bow_frequency_threshold'],
+    #     "vector_size": config['weights_vector_size']
+    # }
+    # maxEpoch = config['maxepoch']
+    # learningRate = config['learningRate']
+
+    # there are 3 layers, hence list must have 3 values
+    # hidden_layer_sizes = config['hidden_layer_sizes']
+
+    # create NN Classifier Instance
+    # takes 3 arguments: hidden layer sizes, embedding params, epoch, and learning rate
+    # model = Feedforward(hidden_layer_sizes,
+    #                     embedding_params, maxEpoch, learningRate)
+    # print(model)
+
+    # Training the model
+    # return model with best accuracy
+    # model = model.fit()
+
+    ##########################################
+
+    # Loss Function
+    criterion = torch.nn.CrossEntropyLoss()
+
+    # use model's BOW
+    BOW = model.sentence_model
+
+    # Get Text embedding for testing
+    x_val, y_val_arr = model._get_text_embedding(
+        BOW, config['dev_file'])
+
+    # use model's pre loaded class dictionary
+    dic = model.class_dictionary
+
+    # Convert arrays to Tensors
+    y_val = torch.from_numpy(
+        np.array([dic[v] for v in y_val_arr])).long()
+
+    # predict test data
+    y_pred = model.predict(x_val)
+
+    # evaluation
+    model.eval()
+    after_train_loss = criterion(y_pred.squeeze(), y_val)
+    # Evaluator
+    evaluator = Evaluator(y_pred.squeeze(), y_val)
+    return evaluator.get_f1_score()
+
+    # print('-----------Validation complete-----------')
 
 
 def run_testing(config):
@@ -192,10 +219,10 @@ def run_testing(config):
     f1 = evaluator.get_f1_score()
 
     # for confusion matrix purposes
-    print("Predicted:")
-    print(evaluator.predicted_labels)
-    print("Actual:")
-    print(evaluator.actual_labels.tolist())
+    # print("Predicted:")
+    # print(evaluator.predicted_labels)
+    # print("Actual:")
+    # print(evaluator.actual_labels.tolist())
 
     # print info
     print('Test loss: ', after_train_loss.item())
