@@ -138,8 +138,8 @@ class Feedforward(torch.nn.Module):
 
                 print("Correct predictions: {} / {}".format(correct_count, len(self.x)))
                 # print info
-                print('Epoch {}: train loss: {} Precision: {} F1 Micro: {}'.format(
-                    epoch, loss.item(), precision, f1))
+                print(
+                    f'Epoch {epoch}: train loss: {loss.item():.5f} Precision: {precision:.5f} F1 Micro: {f1:.5f}')
 
                 # select the best model
                 # if precision > self.bestTrainAccuracy:
@@ -150,17 +150,18 @@ class Feedforward(torch.nn.Module):
                     self.best_y_pred = y_pred
             # end for
             endTimer = time.process_time()
-            print('Time taken for training: {} mins'.format(endTimer/600))
+            timeTaken = endTimer/600
+            print(f'Time taken for training: { timeTaken:.5f} mins')
             # print('Returning best model with train accuracy {}'.format(
             #     self.bestTrainAccuracy))
-            print('Returning best model with train loss {} and Precision {}'.format(
-                self.bestTrainLoss, self.bestTrainAccuracy))
+            print(
+                f'Returning best model with train loss: {self.bestTrainLoss:.5f} and {self.bestTrainAccuracy:.5f}')
             return bestModel
 
         except KeyboardInterrupt:
             endTimer = time.process_time()
             print('Training has been stopped at Epoch {}'.format(epoch))
-            print('Time taken for training: {}'.format(endTimer))
+            print(f'Time taken for training: {endTimer: .5f}')
             pass
 
     def _getClassDictionary(self):
