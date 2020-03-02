@@ -19,7 +19,7 @@ class Feedforward(torch.nn.Module):
     def __init__(self, hidden_sizes, embedding_params, epoch, learning_rate):
         super(Feedforward, self).__init__()
 
-        assert len(hidden_sizes) == 3
+        assert len(hidden_sizes) == 2
 
         self.embedding_params = embedding_params
         self.epoch = epoch
@@ -63,36 +63,33 @@ class Feedforward(torch.nn.Module):
         self.hidden_size = hidden_sizes[0]
         # self.hidden_size2 = int(self.hidden_size)
         self.hidden_size2 = hidden_sizes[1]
-        self.hidden_size3 = hidden_sizes[2]
 
         # Layers of Nerual network
         # hidden layer 1
         self.fc1 = torch.nn.Linear(self.input_dim, self.hidden_size)
-        # activation
+        # activation Relu
         self.relu = torch.nn.ReLU()
+        self.sigmoid = torch.nn.Sigmoid()
         # hidden layer 2
         self.fc2 = torch.nn.Linear(self.hidden_size, self.hidden_size2)
-        # hidden layer 3
-        self.fc3 = torch.nn.Linear(self.hidden_size2, self.hidden_size3)
+        # activation softmax
+        self.softmax = torch.nn.Softmax(dim=1)
         # output
-        self.fc4 = torch.nn.Linear(self.hidden_size3, self.no_output_classes)
-        # self.softmax = torch.nn.Softmax(dim=1)
+        self.fc3 = torch.nn.Linear(self.hidden_size2, self.no_output_classes)
 
     def forward(self, x):
         # hidden layer 1
         hidden1 = self.fc1(x)
-        relu1 = self.relu(hidden1)
+        # relu1 = self.relu(hidden1)
+        activation1 = self.relu(hidden1)
 
         # hidden layer 2
-        hidden2 = self.fc2(relu1)
-        relu2 = self.relu(hidden2)
-
-        # hidden layer 3
-        hidden3 = self.fc3(relu2)
-        relu3 = self.relu(hidden3)
+        hidden2 = self.fc2(activation1)
+        # relu2 = self.relu(hidden2)
+        activation2 = self.relu(hidden2)
 
         # output layer
-        output = self.fc4(relu3)
+        output = self.fc3(activation2)
         return output
 
     def fit(self):
@@ -148,7 +145,7 @@ class Feedforward(torch.nn.Module):
                 # if precision > self.bestTrainAccuracy:
                 if loss.item() < self.bestTrainLoss:
                     bestModel = self
-                    # self.bestTrainAccuracy = precision
+                    self.bestTrainAccuracy = precision
                     self.bestTrainLoss = loss
                     self.best_y_pred = y_pred
             # end for
@@ -156,8 +153,8 @@ class Feedforward(torch.nn.Module):
             print('Time taken for training: {} mins'.format(endTimer/600))
             # print('Returning best model with train accuracy {}'.format(
             #     self.bestTrainAccuracy))
-            print('Returning best model with train loss {}'.format(
-                self.bestTrainLoss))
+            print('Returning best model with train loss {} and Precision {}'.format(
+                self.bestTrainLoss, self.bestTrainAccuracy))
             return bestModel
 
         except KeyboardInterrupt:
