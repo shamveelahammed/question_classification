@@ -1,6 +1,7 @@
 ############################################################################################################################
 GLOVE vs RANDOM
 
+RANDOM
 PS C:\Users\valio\Uni\question_classification\src> python .\question_classifier.py  train --config_file .\parameter.config
 Training for BiLTSM has started..
 Epoch: 01 | Epoch Time: 0m 51s
@@ -153,6 +154,9 @@ Test loss:  2.9337005615234375
 Correct predictions: 304.0 / 573
 Precision: 53.054101221640494
 F1 micro Score: 0.5305410122164049
+
+
+GLOVE
 PS C:\Users\valio\Uni\question_classification\src> python .\question_classifier.py  train --config_file .\parameter.config
 Training for BiLTSM has started..
 Epoch: 01 | Epoch Time: 0m 25s
@@ -624,19 +628,30 @@ Precision: 61.08202443280978
 F1 micro Score: 0.6108202443280978
 PS C:\Users\valio\Uni\question_classification\src>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+############################################################################################################################
+FREEZE is True
+Time taken for training: 1.97755 mins
+Returning best model with train loss: 0.25383 and 94.13382
+-----------Training complete-----------
+The model has been exported to model2.bin
+-----------Running Validation-----------
+Started loading text embedding...
+Finished loading text embedding...
+Validation Score: 60.38834951456311
+PS C:\Users\valio\Uni\question_classification\src> python .\question_classifier.py  test --config_file .\parameter.config 
+Model model2.bin has been loaded...
+Feedforward(
+  (embeddings): Embedding(9549, 300)
+  (fc1): Linear(in_features=50, out_features=50, bias=True)
+  (relu): ReLU()
+  (sigmoid): Sigmoid()
+  (fc2): Linear(in_features=50, out_features=50, bias=True)
+  (softmax): Softmax(dim=1)
+  (fc3): Linear(in_features=50, out_features=50, bias=True)
+)
+Started loading text embedding...
+Finished loading text embedding...
+Test loss:  2.229763984680176
+Correct predictions: 333.0 / 573
+Precision: 58.1151832460733
+F1 micro Score: 0.581151832460733
