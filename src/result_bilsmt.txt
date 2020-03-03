@@ -1,0 +1,642 @@
+############################################################################################################################
+GLOVE vs RANDOM
+
+PS C:\Users\valio\Uni\question_classification\src> python .\question_classifier.py  train --config_file .\parameter.config
+Training for BiLTSM has started..
+Epoch: 01 | Epoch Time: 0m 51s
+        Train Loss: 2.432 | Train Acc: 52.566%
+Epoch: 02 | Epoch Time: 0m 50s
+        Train Loss: 1.455 | Train Acc: 71.059%
+Epoch: 03 | Epoch Time: 0m 49s
+        Train Loss: 0.863 | Train Acc: 83.868%
+Epoch: 04 | Epoch Time: 1m 1s
+        Train Loss: 0.556 | Train Acc: 89.024%
+Epoch: 05 | Epoch Time: 1m 5s
+        Train Loss: 0.390 | Train Acc: 92.140%
+Epoch: 06 | Epoch Time: 1m 2s
+        Train Loss: 0.242 | Train Acc: 95.005%
+Training for BiLTSM has ended and the model saved to data_bilstm.bin
+Started loading text embedding...
+Finished loading text embedding...
+Feedforward(
+  (embeddings): Embedding(9549, 300)
+  (fc1): Linear(in_features=50, out_features=50, bias=True)
+  (relu): ReLU()
+  (sigmoid): Sigmoid()
+  (fc2): Linear(in_features=50, out_features=50, bias=True)
+  (softmax): Softmax(dim=1)
+  (fc3): Linear(in_features=50, out_features=50, bias=True)
+)
+Training NN started
+Training data dimensions: 50
+Training data shape: torch.Size([4364, 50])
+Correct predictions: 77.0 / 4364
+Epoch 0: train loss: 4.32220 Precision: 1.76444 F1 Micro: 0.01764
+Correct predictions: 1545.0 / 4364
+Epoch 1: train loss: 2.65266 Precision: 35.40330 F1 Micro: 0.35403
+Correct predictions: 2179.0 / 4364
+Epoch 2: train loss: 2.13522 Precision: 49.93126 F1 Micro: 0.49931
+Correct predictions: 2479.0 / 4364
+Epoch 3: train loss: 2.10047 Precision: 56.80568 F1 Micro: 0.56806
+Correct predictions: 2287.0 / 4364
+Epoch 4: train loss: 1.99370 Precision: 52.40605 F1 Micro: 0.52406
+Correct predictions: 1889.0 / 4364
+Epoch 5: train loss: 2.51140 Precision: 43.28598 F1 Micro: 0.43286
+Correct predictions: 2759.0 / 4364
+Epoch 6: train loss: 1.76802 Precision: 63.22181 F1 Micro: 0.63222
+Correct predictions: 3023.0 / 4364
+Epoch 7: train loss: 1.31272 Precision: 69.27131 F1 Micro: 0.69271
+Correct predictions: 3160.0 / 4364
+Epoch 8: train loss: 1.18531 Precision: 72.41063 F1 Micro: 0.72411
+Correct predictions: 3402.0 / 4364
+Epoch 9: train loss: 0.98046 Precision: 77.95600 F1 Micro: 0.77956
+Correct predictions: 3454.0 / 4364
+Epoch 10: train loss: 0.92433 Precision: 79.14757 F1 Micro: 0.79148
+Correct predictions: 3393.0 / 4364
+Epoch 11: train loss: 0.90546 Precision: 77.74977 F1 Micro: 0.77750
+Correct predictions: 3293.0 / 4364
+Epoch 12: train loss: 1.05048 Precision: 75.45830 F1 Micro: 0.75458
+Correct predictions: 3172.0 / 4364
+Epoch 13: train loss: 1.16753 Precision: 72.68561 F1 Micro: 0.72686
+Correct predictions: 3525.0 / 4364
+Epoch 14: train loss: 0.87231 Precision: 80.77452 F1 Micro: 0.80775
+Correct predictions: 3578.0 / 4364
+Epoch 15: train loss: 0.74831 Precision: 81.98900 F1 Micro: 0.81989
+Correct predictions: 3675.0 / 4364
+Epoch 16: train loss: 0.68310 Precision: 84.21173 F1 Micro: 0.84212
+Correct predictions: 3686.0 / 4364
+Epoch 17: train loss: 0.64635 Precision: 84.46379 F1 Micro: 0.84464
+Correct predictions: 3766.0 / 4364
+Epoch 18: train loss: 0.59803 Precision: 86.29698 F1 Micro: 0.86297
+Correct predictions: 3774.0 / 4364
+Epoch 19: train loss: 0.56589 Precision: 86.48029 F1 Micro: 0.86480
+Correct predictions: 3824.0 / 4364
+Epoch 20: train loss: 0.53492 Precision: 87.62603 F1 Micro: 0.87626
+Correct predictions: 3829.0 / 4364
+Epoch 21: train loss: 0.51080 Precision: 87.74060 F1 Micro: 0.87741
+Correct predictions: 3876.0 / 4364
+Epoch 22: train loss: 0.48516 Precision: 88.81760 F1 Micro: 0.88818
+Correct predictions: 3877.0 / 4364
+Epoch 23: train loss: 0.46416 Precision: 88.84051 F1 Micro: 0.88841
+Correct predictions: 3918.0 / 4364
+Epoch 24: train loss: 0.44204 Precision: 89.78002 F1 Micro: 0.89780
+Correct predictions: 3922.0 / 4364
+Epoch 25: train loss: 0.42325 Precision: 89.87168 F1 Micro: 0.89872
+Correct predictions: 3964.0 / 4364
+Epoch 26: train loss: 0.40356 Precision: 90.83410 F1 Micro: 0.90834
+Correct predictions: 3960.0 / 4364
+Epoch 27: train loss: 0.38651 Precision: 90.74244 F1 Micro: 0.90742
+Correct predictions: 3988.0 / 4364
+Epoch 28: train loss: 0.36892 Precision: 91.38405 F1 Micro: 0.91384
+Correct predictions: 3994.0 / 4364
+Epoch 29: train loss: 0.35332 Precision: 91.52154 F1 Micro: 0.91522
+Correct predictions: 4024.0 / 4364
+Epoch 30: train loss: 0.33761 Precision: 92.20898 F1 Micro: 0.92209
+Correct predictions: 4037.0 / 4364
+Epoch 31: train loss: 0.32308 Precision: 92.50687 F1 Micro: 0.92507
+Correct predictions: 4056.0 / 4364
+Epoch 32: train loss: 0.30891 Precision: 92.94225 F1 Micro: 0.92942
+Correct predictions: 4065.0 / 4364
+Epoch 33: train loss: 0.29562 Precision: 93.14849 F1 Micro: 0.93148
+Correct predictions: 4081.0 / 4364
+Epoch 34: train loss: 0.28316 Precision: 93.51512 F1 Micro: 0.93515
+Correct predictions: 4092.0 / 4364
+Epoch 35: train loss: 0.27144 Precision: 93.76719 F1 Micro: 0.93767
+Correct predictions: 4103.0 / 4364
+Epoch 36: train loss: 0.26062 Precision: 94.01925 F1 Micro: 0.94019
+Correct predictions: 4113.0 / 4364
+Epoch 37: train loss: 0.25050 Precision: 94.24840 F1 Micro: 0.94248
+Correct predictions: 4123.0 / 4364
+Epoch 38: train loss: 0.24104 Precision: 94.47754 F1 Micro: 0.94478
+Correct predictions: 4127.0 / 4364
+Epoch 39: train loss: 0.23213 Precision: 94.56920 F1 Micro: 0.94569
+Correct predictions: 4135.0 / 4364
+Epoch 40: train loss: 0.22375 Precision: 94.75252 F1 Micro: 0.94753
+Correct predictions: 4154.0 / 4364
+Epoch 41: train loss: 0.21582 Precision: 95.18790 F1 Micro: 0.95188
+Correct predictions: 4163.0 / 4364
+Epoch 42: train loss: 0.20829 Precision: 95.39413 F1 Micro: 0.95394
+Correct predictions: 4176.0 / 4364
+Correct predictions: 4184.0 / 4364
+Epoch 44: train loss: 0.19426 Precision: 95.87534 F1 Micro: 0.95875
+Correct predictions: 4190.0 / 4364
+Epoch 45: train loss: 0.18771 Precision: 96.01283 F1 Micro: 0.96013
+Correct predictions: 4195.0 / 4364
+Epoch 46: train loss: 0.18144 Precision: 96.12741 F1 Micro: 0.96127
+Correct predictions: 4205.0 / 4364
+Epoch 47: train loss: 0.17543 Precision: 96.35655 F1 Micro: 0.96357
+Correct predictions: 4209.0 / 4364
+Epoch 48: train loss: 0.16967 Precision: 96.44821 F1 Micro: 0.96448
+Correct predictions: 4212.0 / 4364
+Epoch 49: train loss: 0.16418 Precision: 96.51696 F1 Micro: 0.96517
+Time taken for training: 4.08711 mins
+Returning best model with train loss: 0.16418 and 96.51696
+-----------Training complete-----------
+The model has been exported to model2.bin
+Started loading text embedding...
+Finished loading text embedding...
+Validation Score: 55.92233009708738
+PS C:\Users\valio\Uni\question_classification\src> python .\question_classifier.py  test --config_file .\parameter.config 
+Model model2.bin has been loaded...
+Feedforward(
+  (embeddings): Embedding(9549, 300)
+  (fc1): Linear(in_features=50, out_features=50, bias=True)
+  (relu): ReLU()
+  (sigmoid): Sigmoid()
+  (fc2): Linear(in_features=50, out_features=50, bias=True)
+  (softmax): Softmax(dim=1)
+  (fc3): Linear(in_features=50, out_features=50, bias=True)
+)
+Started loading text embedding...
+Finished loading text embedding...
+Test loss:  2.9337005615234375
+Correct predictions: 304.0 / 573
+Precision: 53.054101221640494
+F1 micro Score: 0.5305410122164049
+PS C:\Users\valio\Uni\question_classification\src> python .\question_classifier.py  train --config_file .\parameter.config
+Training for BiLTSM has started..
+Epoch: 01 | Epoch Time: 0m 25s
+        Train Loss: 2.112 | Train Acc: 45.967%
+Epoch: 02 | Epoch Time: 0m 27s
+        Train Loss: 1.177 | Train Acc: 67.599%
+Epoch: 03 | Epoch Time: 0m 27s
+        Train Loss: 0.567 | Train Acc: 83.868%
+Epoch: 04 | Epoch Time: 0m 30s
+        Train Loss: 0.227 | Train Acc: 93.607%
+Epoch: 05 | Epoch Time: 0m 34s
+        Train Loss: 0.093 | Train Acc: 97.479%
+Epoch: 06 | Epoch Time: 0m 34s
+        Train Loss: 0.043 | Train Acc: 99.015%
+Training for BiLTSM has ended and the model saved to data_bilstm.bin
+Started loading text embedding...
+Finished loading text embedding...
+Feedforward(
+  (embeddings): Embedding(9549, 300)
+  (fc1): Linear(in_features=50, out_features=50, bias=True)
+  (relu): ReLU()
+  (sigmoid): Sigmoid()
+  (fc2): Linear(in_features=50, out_features=50, bias=True)
+  (softmax): Softmax(dim=1)
+  (fc3): Linear(in_features=50, out_features=50, bias=True)
+)
+Training NN started
+Training data dimensions: 50
+Training data shape: torch.Size([4364, 50])
+Correct predictions: 568.0 / 4364
+Epoch 0: train loss: 3.73925 Precision: 13.01558 F1 Micro: 0.13016
+Correct predictions: 931.0 / 4364
+Epoch 1: train loss: 2.98365 Precision: 21.33364 F1 Micro: 0.21334
+Correct predictions: 1135.0 / 4364
+Epoch 2: train loss: 2.93398 Precision: 26.00825 F1 Micro: 0.26008
+Correct predictions: 2214.0 / 4364
+Epoch 3: train loss: 2.13645 Precision: 50.73327 F1 Micro: 0.50733
+Correct predictions: 2110.0 / 4364
+Epoch 4: train loss: 1.92829 Precision: 48.35014 F1 Micro: 0.48350
+Correct predictions: 1820.0 / 4364
+Epoch 5: train loss: 2.55382 Precision: 41.70486 F1 Micro: 0.41705
+Correct predictions: 2222.0 / 4364
+Epoch 6: train loss: 1.92444 Precision: 50.91659 F1 Micro: 0.50917
+Correct predictions: 2772.0 / 4364
+Epoch 7: train loss: 1.81887 Precision: 63.51971 F1 Micro: 0.63520
+Correct predictions: 2614.0 / 4364
+Epoch 8: train loss: 1.71102 Precision: 59.89918 F1 Micro: 0.59899
+Correct predictions: 2183.0 / 4364
+Epoch 9: train loss: 2.07472 Precision: 50.02291 F1 Micro: 0.50023
+Correct predictions: 2983.0 / 4364
+Epoch 10: train loss: 1.38212 Precision: 68.35472 F1 Micro: 0.68355
+Correct predictions: 3026.0 / 4364
+Epoch 11: train loss: 1.24023 Precision: 69.34005 F1 Micro: 0.69340
+Correct predictions: 3189.0 / 4364
+Epoch 12: train loss: 1.10846 Precision: 73.07516 F1 Micro: 0.73075
+Correct predictions: 3249.0 / 4364
+Epoch 13: train loss: 1.02984 Precision: 74.45005 F1 Micro: 0.74450
+Correct predictions: 3433.0 / 4364
+Epoch 14: train loss: 0.90701 Precision: 78.66636 F1 Micro: 0.78666
+Correct predictions: 3544.0 / 4364
+Epoch 15: train loss: 0.79330 Precision: 81.20990 F1 Micro: 0.81210
+Correct predictions: 3667.0 / 4364
+Epoch 16: train loss: 0.71782 Precision: 84.02841 F1 Micro: 0.84028
+Correct predictions: 3704.0 / 4364
+Epoch 17: train loss: 0.67093 Precision: 84.87626 F1 Micro: 0.84876
+Correct predictions: 3756.0 / 4364
+Epoch 18: train loss: 0.63197 Precision: 86.06783 F1 Micro: 0.86068
+Correct predictions: 3778.0 / 4364
+Epoch 19: train loss: 0.59776 Precision: 86.57195 F1 Micro: 0.86572
+Correct predictions: 3829.0 / 4364
+Epoch 20: train loss: 0.56692 Precision: 87.74060 F1 Micro: 0.87741
+Correct predictions: 3830.0 / 4364
+Epoch 21: train loss: 0.53965 Precision: 87.76352 F1 Micro: 0.87764
+Correct predictions: 3885.0 / 4364
+Epoch 22: train loss: 0.51520 Precision: 89.02383 F1 Micro: 0.89024
+Correct predictions: 3868.0 / 4364
+Epoch 23: train loss: 0.49678 Precision: 88.63428 F1 Micro: 0.88634
+Correct predictions: 3916.0 / 4364
+Epoch 24: train loss: 0.48008 Precision: 89.73419 F1 Micro: 0.89734
+Correct predictions: 3856.0 / 4364
+Epoch 25: train loss: 0.48523 Precision: 88.35930 F1 Micro: 0.88359
+Correct predictions: 3858.0 / 4364
+Epoch 26: train loss: 0.50781 Precision: 88.40513 F1 Micro: 0.88405
+Correct predictions: 3473.0 / 4364
+Epoch 27: train loss: 0.84242 Precision: 79.58295 F1 Micro: 0.79583
+Correct predictions: 3105.0 / 4364
+Epoch 28: train loss: 2.23796 Precision: 71.15032 F1 Micro: 0.71150
+Correct predictions: 3820.0 / 4364
+Epoch 29: train loss: 0.72751 Precision: 87.53437 F1 Micro: 0.87534
+Correct predictions: 3836.0 / 4364
+Epoch 30: train loss: 0.53323 Precision: 87.90101 F1 Micro: 0.87901
+Correct predictions: 3930.0 / 4364
+Epoch 31: train loss: 0.45357 Precision: 90.05500 F1 Micro: 0.90055
+Correct predictions: 3960.0 / 4364
+Epoch 32: train loss: 0.41644 Precision: 90.74244 F1 Micro: 0.90742
+Correct predictions: 3972.0 / 4364
+Epoch 33: train loss: 0.38932 Precision: 91.01742 F1 Micro: 0.91017
+Correct predictions: 4004.0 / 4364
+Epoch 34: train loss: 0.36667 Precision: 91.75069 F1 Micro: 0.91751
+Correct predictions: 4020.0 / 4364
+Epoch 35: train loss: 0.34761 Precision: 92.11732 F1 Micro: 0.92117
+Correct predictions: 4036.0 / 4364
+Epoch 36: train loss: 0.33085 Precision: 92.48396 F1 Micro: 0.92484
+Correct predictions: 4059.0 / 4364
+Epoch 37: train loss: 0.31593 Precision: 93.01100 F1 Micro: 0.93011
+Correct predictions: 4076.0 / 4364
+Epoch 38: train loss: 0.30240 Precision: 93.40055 F1 Micro: 0.93401
+Correct predictions: 4085.0 / 4364
+Epoch 39: train loss: 0.29007 Precision: 93.60678 F1 Micro: 0.93607
+Correct predictions: 4094.0 / 4364
+Epoch 40: train loss: 0.27872 Precision: 93.81302 F1 Micro: 0.93813
+Correct predictions: 4103.0 / 4364
+Epoch 41: train loss: 0.26823 Precision: 94.01925 F1 Micro: 0.94019
+Correct predictions: 4110.0 / 4364
+Epoch 42: train loss: 0.25846 Precision: 94.17965 F1 Micro: 0.94180
+Correct predictions: 4119.0 / 4364
+Correct predictions: 4127.0 / 4364
+Epoch 44: train loss: 0.24067 Precision: 94.56920 F1 Micro: 0.94569
+Correct predictions: 4133.0 / 4364
+Epoch 45: train loss: 0.23252 Precision: 94.70669 F1 Micro: 0.94707
+Correct predictions: 4141.0 / 4364
+Epoch 46: train loss: 0.22482 Precision: 94.89001 F1 Micro: 0.94890
+Correct predictions: 4147.0 / 4364
+Epoch 47: train loss: 0.21752 Precision: 95.02750 F1 Micro: 0.95027
+Correct predictions: 4159.0 / 4364
+Epoch 48: train loss: 0.21058 Precision: 95.30247 F1 Micro: 0.95302
+Correct predictions: 4161.0 / 4364
+Epoch 49: train loss: 0.20398 Precision: 95.34830 F1 Micro: 0.95348
+Time taken for training: 2.27529 mins
+Returning best model with train loss: 0.20398 and 95.34830
+-----------Training complete-----------
+The model has been exported to model2.bin
+-----------Running Validation-----------
+Started loading text embedding...
+Finished loading text embedding...
+Validation Score: 62.13592233009708
+PS C:\Users\valio\Uni\question_classification\src> python .\question_classifier.py  test --config_file .\parameter.config 
+Model model2.bin has been loaded...
+Feedforward(
+  (embeddings): Embedding(9549, 300)
+  (fc1): Linear(in_features=50, out_features=50, bias=True)
+  (relu): ReLU()
+  (sigmoid): Sigmoid()
+  (fc2): Linear(in_features=50, out_features=50, bias=True)
+  (softmax): Softmax(dim=1)
+  (fc3): Linear(in_features=50, out_features=50, bias=True)
+)
+Started loading text embedding...
+Finished loading text embedding...
+Test loss:  2.0471105575561523
+Correct predictions: 356.0 / 573
+Precision: 62.129144851657934
+F1 micro Score: 0.6212914485165794
+PS C:\Users\valio\Uni\question_classification\src> 
+
+
+############################################################################################################################
+NOT LOWERCASE W GLOVE
+
+PS C:\Users\valio\Uni\question_classification\src> python .\question_classifier.py  train --config_file .\parameter.config
+Training for BiLTSM has started..
+Epoch: 01 | Epoch Time: 0m 25s
+        Train Loss: 2.096 | Train Acc: 47.434%
+Epoch: 02 | Epoch Time: 0m 25s
+        Train Loss: 1.186 | Train Acc: 67.828%
+Epoch: 03 | Epoch Time: 0m 25s
+        Train Loss: 0.590 | Train Acc: 83.135%
+Epoch: 04 | Epoch Time: 0m 29s
+        Train Loss: 0.249 | Train Acc: 92.851%
+Epoch: 05 | Epoch Time: 0m 34s
+        Train Loss: 0.120 | Train Acc: 96.975%
+Epoch: 06 | Epoch Time: 0m 33s
+        Train Loss: 0.054 | Train Acc: 98.648%
+Training for BiLTSM has ended and the model saved to data_bilstm.bin
+Started loading text embedding...
+Finished loading text embedding...
+Feedforward(
+  (embeddings): Embedding(9549, 300)
+  (fc1): Linear(in_features=50, out_features=50, bias=True)
+  (relu): ReLU()
+  (sigmoid): Sigmoid()
+  (fc2): Linear(in_features=50, out_features=50, bias=True)
+  (softmax): Softmax(dim=1)
+  (fc3): Linear(in_features=50, out_features=50, bias=True)
+)
+Training NN started
+Training data dimensions: 50
+Training data shape: torch.Size([4364, 50])
+Correct predictions: 40.0 / 4364
+Epoch 0: train loss: 3.94746 Precision: 0.91659 F1 Micro: 0.00917
+Correct predictions: 1074.0 / 4364
+Epoch 1: train loss: 3.10858 Precision: 24.61045 F1 Micro: 0.24610
+Correct predictions: 1411.0 / 4364
+Epoch 2: train loss: 2.69833 Precision: 32.33272 F1 Micro: 0.32333
+Correct predictions: 1321.0 / 4364
+Epoch 3: train loss: 2.85545 Precision: 30.27039 F1 Micro: 0.30270
+Correct predictions: 1960.0 / 4364
+Epoch 4: train loss: 2.21715 Precision: 44.91292 F1 Micro: 0.44913
+Correct predictions: 2350.0 / 4364
+Epoch 5: train loss: 1.90347 Precision: 53.84968 F1 Micro: 0.53850
+Correct predictions: 2524.0 / 4364
+Epoch 6: train loss: 1.77622 Precision: 57.83685 F1 Micro: 0.57837
+Correct predictions: 2638.0 / 4364
+Epoch 7: train loss: 1.72947 Precision: 60.44913 F1 Micro: 0.60449
+Correct predictions: 2188.0 / 4364
+Epoch 8: train loss: 2.17866 Precision: 50.13749 F1 Micro: 0.50137
+Correct predictions: 1840.0 / 4364
+Epoch 9: train loss: 2.64747 Precision: 42.16315 F1 Micro: 0.42163
+Correct predictions: 2805.0 / 4364
+Epoch 10: train loss: 1.77359 Precision: 64.27589 F1 Micro: 0.64276
+Correct predictions: 2683.0 / 4364
+Epoch 11: train loss: 1.55953 Precision: 61.48029 F1 Micro: 0.61480
+Correct predictions: 2902.0 / 4364
+Epoch 12: train loss: 1.44526 Precision: 66.49863 F1 Micro: 0.66499
+Correct predictions: 3111.0 / 4364
+Epoch 13: train loss: 1.17533 Precision: 71.28781 F1 Micro: 0.71288
+Correct predictions: 3325.0 / 4364
+Epoch 14: train loss: 1.04382 Precision: 76.19157 F1 Micro: 0.76192
+Correct predictions: 3359.0 / 4364
+Epoch 15: train loss: 0.95305 Precision: 76.97067 F1 Micro: 0.76971
+Correct predictions: 3523.0 / 4364
+Epoch 16: train loss: 0.87747 Precision: 80.72869 F1 Micro: 0.80729
+Correct predictions: 3512.0 / 4364
+Epoch 17: train loss: 0.81831 Precision: 80.47663 F1 Micro: 0.80477
+Correct predictions: 3632.0 / 4364
+Epoch 18: train loss: 0.76443 Precision: 83.22640 F1 Micro: 0.83226
+Correct predictions: 3579.0 / 4364
+Epoch 19: train loss: 0.73744 Precision: 82.01192 F1 Micro: 0.82012
+Correct predictions: 3669.0 / 4364
+Epoch 20: train loss: 0.70171 Precision: 84.07424 F1 Micro: 0.84074
+Correct predictions: 3566.0 / 4364
+Epoch 21: train loss: 0.73690 Precision: 81.71402 F1 Micro: 0.81714
+Correct predictions: 3604.0 / 4364
+Epoch 22: train loss: 0.72225 Precision: 82.58478 F1 Micro: 0.82585
+Correct predictions: 3488.0 / 4364
+Epoch 23: train loss: 0.85479 Precision: 79.92667 F1 Micro: 0.79927
+Correct predictions: 3464.0 / 4364
+Epoch 24: train loss: 0.90519 Precision: 79.37672 F1 Micro: 0.79377
+Correct predictions: 3596.0 / 4364
+Epoch 25: train loss: 0.78080 Precision: 82.40147 F1 Micro: 0.82401
+Correct predictions: 3748.0 / 4364
+Epoch 26: train loss: 0.59861 Precision: 85.88451 F1 Micro: 0.85885
+Correct predictions: 3837.0 / 4364
+Epoch 27: train loss: 0.51911 Precision: 87.92392 F1 Micro: 0.87924
+Correct predictions: 3837.0 / 4364
+Epoch 28: train loss: 0.49860 Precision: 87.92392 F1 Micro: 0.87924
+Correct predictions: 3897.0 / 4364
+Epoch 29: train loss: 0.46828 Precision: 89.29881 F1 Micro: 0.89299
+Correct predictions: 3875.0 / 4364
+Epoch 30: train loss: 0.46196 Precision: 88.79468 F1 Micro: 0.88795
+Correct predictions: 3923.0 / 4364
+Epoch 31: train loss: 0.43824 Precision: 89.89459 F1 Micro: 0.89895
+Correct predictions: 3880.0 / 4364
+Epoch 32: train loss: 0.44252 Precision: 88.90926 F1 Micro: 0.88909
+Correct predictions: 3922.0 / 4364
+Epoch 33: train loss: 0.43075 Precision: 89.87168 F1 Micro: 0.89872
+Correct predictions: 3827.0 / 4364
+Epoch 34: train loss: 0.46916 Precision: 87.69478 F1 Micro: 0.87695
+Correct predictions: 3901.0 / 4364
+Epoch 35: train loss: 0.42151 Precision: 89.39047 F1 Micro: 0.89390
+Correct predictions: 3847.0 / 4364
+Epoch 36: train loss: 0.45967 Precision: 88.15307 F1 Micro: 0.88153
+Correct predictions: 3986.0 / 4364
+Epoch 37: train loss: 0.37225 Precision: 91.33822 F1 Micro: 0.91338
+Correct predictions: 4001.0 / 4364
+Epoch 38: train loss: 0.35934 Precision: 91.68194 F1 Micro: 0.91682
+Correct predictions: 4031.0 / 4364
+Epoch 39: train loss: 0.33308 Precision: 92.36939 F1 Micro: 0.92369
+Correct predictions: 4059.0 / 4364
+Epoch 40: train loss: 0.31808 Precision: 93.01100 F1 Micro: 0.93011
+Correct predictions: 4066.0 / 4364
+Epoch 41: train loss: 0.30332 Precision: 93.17140 F1 Micro: 0.93171
+Correct predictions: 4082.0 / 4364
+Epoch 42: train loss: 0.29192 Precision: 93.53804 F1 Micro: 0.93538
+Correct predictions: 4083.0 / 4364
+Correct predictions: 4107.0 / 4364
+Epoch 44: train loss: 0.27228 Precision: 94.11091 F1 Micro: 0.94111
+Correct predictions: 4099.0 / 4364
+Epoch 45: train loss: 0.26362 Precision: 93.92759 F1 Micro: 0.93928
+Correct predictions: 4115.0 / 4364
+Epoch 46: train loss: 0.25565 Precision: 94.29423 F1 Micro: 0.94294
+Correct predictions: 4125.0 / 4364
+Epoch 47: train loss: 0.24800 Precision: 94.52337 F1 Micro: 0.94523
+Correct predictions: 4133.0 / 4364
+Epoch 48: train loss: 0.24084 Precision: 94.70669 F1 Micro: 0.94707
+Correct predictions: 4134.0 / 4364
+Epoch 49: train loss: 0.23395 Precision: 94.72961 F1 Micro: 0.94730
+Time taken for training: 2.19193 mins
+Returning best model with train loss: 0.23395 and 94.72961
+-----------Training complete-----------
+The model has been exported to model2.bin
+Started loading text embedding...
+Finished loading text embedding...
+Validation Score: 62.13592233009708
+PS C:\Users\valio\Uni\question_classification\src> python .\question_classifier.py  test --config_file .\parameter.config 
+Model model2.bin has been loaded...
+Feedforward(
+  (embeddings): Embedding(9549, 300)
+  (fc1): Linear(in_features=50, out_features=50, bias=True)
+  (relu): ReLU()
+  (sigmoid): Sigmoid()
+  (fc2): Linear(in_features=50, out_features=50, bias=True)
+  (softmax): Softmax(dim=1)
+  (fc3): Linear(in_features=50, out_features=50, bias=True)
+)
+Started loading text embedding...
+Finished loading text embedding...
+Test loss:  2.1518285274505615
+Correct predictions: 347.0 / 573
+Precision: 60.55846422338569
+F1 micro Score: 0.6055846422338569
+
+
+############################################################################################################################
+NOT LOWER WITH RANDOM
+
+PS C:\Users\valio\Uni\question_classification\src> python .\question_classifier.py  train --config_file .\parameter.config
+Training for BiLTSM has started..
+Epoch: 01 | Epoch Time: 0m 57s
+        Train Loss: 2.464 | Train Acc: 52.269%
+Epoch: 02 | Epoch Time: 1m 4s
+        Train Loss: 1.467 | Train Acc: 71.104%
+Epoch: 03 | Epoch Time: 1m 8s
+        Train Loss: 0.999 | Train Acc: 81.966%
+Epoch: 04 | Epoch Time: 1m 5s
+        Train Loss: 0.595 | Train Acc: 88.932%
+Epoch: 05 | Epoch Time: 1m 5s
+        Train Loss: 0.394 | Train Acc: 92.186%
+Epoch: 06 | Epoch Time: 1m 5s
+        Train Loss: 0.240 | Train Acc: 94.936%
+Training for BiLTSM has ended and the model saved to data_bilstm.bin
+Started loading text embedding...
+Finished loading text embedding...
+Feedforward(
+  (embeddings): Embedding(9549, 300)
+  (fc1): Linear(in_features=50, out_features=50, bias=True)
+  (relu): ReLU()
+  (sigmoid): Sigmoid()
+  (fc2): Linear(in_features=50, out_features=50, bias=True)
+  (softmax): Softmax(dim=1)
+  (fc3): Linear(in_features=50, out_features=50, bias=True)
+)
+Training NN started
+Training data dimensions: 50
+Training data shape: torch.Size([4364, 50])
+Correct predictions: 79.0 / 4364
+Epoch 0: train loss: 4.36543 Precision: 1.81027 F1 Micro: 0.01810
+Correct predictions: 1441.0 / 4364
+Epoch 1: train loss: 2.84748 Precision: 33.02016 F1 Micro: 0.33020
+Correct predictions: 1174.0 / 4364
+Epoch 2: train loss: 3.10936 Precision: 26.90192 F1 Micro: 0.26902
+Correct predictions: 1637.0 / 4364
+Epoch 3: train loss: 2.59689 Precision: 37.51146 F1 Micro: 0.37511
+Correct predictions: 2328.0 / 4364
+Epoch 4: train loss: 2.10816 Precision: 53.34555 F1 Micro: 0.53346
+Correct predictions: 2161.0 / 4364
+Epoch 5: train loss: 2.00052 Precision: 49.51879 F1 Micro: 0.49519
+Correct predictions: 2339.0 / 4364
+Epoch 6: train loss: 1.92990 Precision: 53.59762 F1 Micro: 0.53598
+Correct predictions: 2527.0 / 4364
+Epoch 7: train loss: 1.79749 Precision: 57.90559 F1 Micro: 0.57906
+Correct predictions: 2666.0 / 4364
+Epoch 8: train loss: 1.84130 Precision: 61.09074 F1 Micro: 0.61091
+Correct predictions: 2932.0 / 4364
+Epoch 9: train loss: 1.57495 Precision: 67.18607 F1 Micro: 0.67186
+Correct predictions: 3016.0 / 4364
+Epoch 10: train loss: 1.42141 Precision: 69.11091 F1 Micro: 0.69111
+Correct predictions: 2858.0 / 4364
+Epoch 11: train loss: 1.49645 Precision: 65.49038 F1 Micro: 0.65490
+Correct predictions: 3050.0 / 4364
+Epoch 12: train loss: 1.29271 Precision: 69.89001 F1 Micro: 0.69890
+Correct predictions: 3372.0 / 4364
+Epoch 13: train loss: 1.03623 Precision: 77.26856 F1 Micro: 0.77269
+Correct predictions: 3465.0 / 4364
+Epoch 14: train loss: 0.91841 Precision: 79.39963 F1 Micro: 0.79400
+Correct predictions: 3514.0 / 4364
+Epoch 15: train loss: 0.83877 Precision: 80.52246 F1 Micro: 0.80522
+Correct predictions: 3532.0 / 4364
+Epoch 16: train loss: 0.80682 Precision: 80.93492 F1 Micro: 0.80935
+Correct predictions: 3518.0 / 4364
+Epoch 17: train loss: 0.80932 Precision: 80.61412 F1 Micro: 0.80614
+Correct predictions: 3611.0 / 4364
+Epoch 18: train loss: 0.73856 Precision: 82.74519 F1 Micro: 0.82745
+Correct predictions: 3641.0 / 4364
+Epoch 19: train loss: 0.68696 Precision: 83.43263 F1 Micro: 0.83433
+Correct predictions: 3734.0 / 4364
+Epoch 20: train loss: 0.60780 Precision: 85.56370 F1 Micro: 0.85564
+Correct predictions: 3781.0 / 4364
+Epoch 21: train loss: 0.55968 Precision: 86.64070 F1 Micro: 0.86641
+Correct predictions: 3829.0 / 4364
+Epoch 22: train loss: 0.52669 Precision: 87.74060 F1 Micro: 0.87741
+Correct predictions: 3851.0 / 4364
+Epoch 23: train loss: 0.50072 Precision: 88.24473 F1 Micro: 0.88245
+Correct predictions: 3887.0 / 4364
+Epoch 24: train loss: 0.47753 Precision: 89.06966 F1 Micro: 0.89070
+Correct predictions: 3902.0 / 4364
+Epoch 25: train loss: 0.45624 Precision: 89.41338 F1 Micro: 0.89413
+Correct predictions: 3917.0 / 4364
+Epoch 26: train loss: 0.43635 Precision: 89.75710 F1 Micro: 0.89757
+Correct predictions: 3932.0 / 4364
+Epoch 27: train loss: 0.41767 Precision: 90.10082 F1 Micro: 0.90101
+Correct predictions: 3948.0 / 4364
+Epoch 28: train loss: 0.40003 Precision: 90.46746 F1 Micro: 0.90467
+Correct predictions: 3965.0 / 4364
+Epoch 29: train loss: 0.38336 Precision: 90.85701 F1 Micro: 0.90857
+Correct predictions: 3979.0 / 4364
+Epoch 30: train loss: 0.36752 Precision: 91.17782 F1 Micro: 0.91178
+Correct predictions: 3985.0 / 4364
+Epoch 31: train loss: 0.35240 Precision: 91.31531 F1 Micro: 0.91315
+Correct predictions: 3993.0 / 4364
+Epoch 32: train loss: 0.33804 Precision: 91.49863 F1 Micro: 0.91499
+Correct predictions: 4011.0 / 4364
+Epoch 33: train loss: 0.32443 Precision: 91.91109 F1 Micro: 0.91911
+Correct predictions: 4027.0 / 4364
+Epoch 34: train loss: 0.31152 Precision: 92.27773 F1 Micro: 0.92278
+Correct predictions: 4042.0 / 4364
+Epoch 35: train loss: 0.29923 Precision: 92.62145 F1 Micro: 0.92621
+Correct predictions: 4058.0 / 4364
+Epoch 36: train loss: 0.28756 Precision: 92.98808 F1 Micro: 0.92988
+Correct predictions: 4069.0 / 4364
+Epoch 37: train loss: 0.27653 Precision: 93.24015 F1 Micro: 0.93240
+Correct predictions: 4084.0 / 4364
+Epoch 38: train loss: 0.26609 Precision: 93.58387 F1 Micro: 0.93584
+Correct predictions: 4096.0 / 4364
+Epoch 39: train loss: 0.25617 Precision: 93.85885 F1 Micro: 0.93859
+Correct predictions: 4108.0 / 4364
+Epoch 40: train loss: 0.24678 Precision: 94.13382 F1 Micro: 0.94134
+Correct predictions: 4116.0 / 4364
+Epoch 41: train loss: 0.23786 Precision: 94.31714 F1 Micro: 0.94317
+Correct predictions: 4127.0 / 4364
+Epoch 42: train loss: 0.22932 Precision: 94.56920 F1 Micro: 0.94569
+Correct predictions: 4133.0 / 4364
+Correct predictions: 4139.0 / 4364
+Epoch 44: train loss: 0.21346 Precision: 94.84418 F1 Micro: 0.94844
+Correct predictions: 4153.0 / 4364
+Epoch 45: train loss: 0.20608 Precision: 95.16499 F1 Micro: 0.95165
+Correct predictions: 4169.0 / 4364
+Epoch 46: train loss: 0.19903 Precision: 95.53162 F1 Micro: 0.95532
+Correct predictions: 4176.0 / 4364
+Epoch 47: train loss: 0.19232 Precision: 95.69203 F1 Micro: 0.95692
+Correct predictions: 4184.0 / 4364
+Epoch 48: train loss: 0.18589 Precision: 95.87534 F1 Micro: 0.95875
+Correct predictions: 4193.0 / 4364
+Epoch 49: train loss: 0.17973 Precision: 96.08158 F1 Micro: 0.96082
+Time taken for training: 4.59703 mins
+Returning best model with train loss: 0.17973 and 96.08158
+-----------Training complete-----------
+The model has been exported to model2.bin
+-----------Running Validation-----------
+Started loading text embedding...
+Finished loading text embedding...
+Validation Score: 59.6116504854369
+PS C:\Users\valio\Uni\question_classification\src> python .\question_classifier.py  test --config_file .\parameter.config
+Model model2.bin has been loaded...
+Feedforward(
+  (embeddings): Embedding(9549, 300)
+  (fc1): Linear(in_features=50, out_features=50, bias=True)
+  (relu): ReLU()
+  (sigmoid): Sigmoid()
+  (fc2): Linear(in_features=50, out_features=50, bias=True)
+  (softmax): Softmax(dim=1)
+  (fc3): Linear(in_features=50, out_features=50, bias=True)
+)
+Started loading text embedding...
+Finished loading text embedding...
+Test loss:  2.570401430130005
+Correct predictions: 350.0 / 573
+Precision: 61.08202443280978
+F1 micro Score: 0.6108202443280978
+PS C:\Users\valio\Uni\question_classification\src>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
