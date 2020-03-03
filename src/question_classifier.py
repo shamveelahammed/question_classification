@@ -85,7 +85,8 @@ def run_training(config):
         "data_path": config['train_file'],
         "random":  (config['bow_init_method'] == 'random'),
         "frequency_threshold": config['bow_frequency_threshold'],
-        "vector_size": config['weights_vector_size']
+        "vector_size": config['weights_vector_size'],
+        "lowercase": config['lowercase']
     }
     maxEpoch = config['maxepoch']
     learningRate = config['learningRate']
