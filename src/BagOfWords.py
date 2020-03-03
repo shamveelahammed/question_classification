@@ -42,7 +42,7 @@ class BagOfWords():
                 word_vector = self.embeddings(word_index)
                 sum_of_vectors = torch.add(sum_of_vectors, word_vector)
             except KeyError:
-                sum_of_vectors = torch.add(sum_of_vectors, torch.rand(self.vector_size).type(torch.FloatTensor))
+                sum_of_vectors = torch.add(sum_of_vectors, torch.zeros(self.vector_size).type(torch.FloatTensor))
 
         # Return the element-wise average of the sum of vectors values.
         return torch.div(sum_of_vectors, len(words)), label
