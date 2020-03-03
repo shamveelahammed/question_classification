@@ -4,7 +4,7 @@
 from argparse import ArgumentParser
 import torch
 import numpy as np
-import json
+import yaml
 
 # word embedding methods
 from BagOfWords import BagOfWords
@@ -52,7 +52,7 @@ def train_model(args):
     # Open relevant files, raise if they don't exist.
     try:
         config_file = open(args.config_file, 'r', encoding="ISO-8859-1")
-        config = json.load(config_file)
+        config = yaml.load(config_file, Loader=yaml.FullLoader)
     except FileNotFoundError as ex:
         raise ex
 
@@ -67,7 +67,7 @@ def test_model(args):
     """
     try:
         config_file = open(args.config_file, 'r', encoding="ISO-8859-1")
-        config = json.load(config_file)
+        config = yaml.load(config_file)
     except FileNotFoundError as ex:
         raise ex
 
