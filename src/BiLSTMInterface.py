@@ -45,11 +45,11 @@ class BiLSTMInterface():
         """Load the BiLSTM model for dev purposes"""
         self.bilstm = torch.load(filepath)
 
-    def load_and_train_bilstm(self, embedding_dim, hidden_dim, usePretrained=False):
+    def load_and_train_bilstm(self, embedding_dim, hidden_dim, freeze, usePretrained=False):
         """Create and load bilstm"""
         if usePretrained:
             _, embeddings = WordEmbeddingLoader._load_glove_weights()
-            model = BiLSTM(embedding_dim, hidden_dim, len(self.word_to_index), len(self.label_to_index), embeddings)
+            model = BiLSTM(embedding_dim, hidden_dim, len(self.word_to_index), len(self.label_to_index), pretrained_vec=embeddings, freeze=freeze)
         else:
             model = BiLSTM(embedding_dim, hidden_dim, len(self.word_to_index), len(self.label_to_index), None)
         
@@ -150,13 +150,13 @@ class BiLSTMInterface():
         return torch.tensor([self.label_to_index[label]], dtype=torch.long)
 
 class BiLSTM(nn.Module):
-    def __init__(self, embedding_dim, hidden_dim, vocab_size, labelset_size, pretrained_vec=None):
+    def __init__(self, embedding_dim, hidden_dim, vocab_size, labelset_size, freeze, pretrained_vec=None):
         super(BiLSTM, self).__init__()
         self.hidden_dim = hidden_dim
         if pretrained_vec is None:
             self.word_embeddings = nn.Embedding(vocab_size, embedding_dim)
         else:    
-            self.word_embeddings = nn.Embedding.from_pretrained(pretrained_vec)
+            self.word_embeddings = nn.Embedding.from_pretrained(embeddings=pretrained_vec, freeze=freeze)
 
         self.lstm = nn.LSTM(input_size=embedding_dim, hidden_size=hidden_dim, bidirectional=True)
         self.hidden2label = nn.Linear(hidden_dim * 2, labelset_size)

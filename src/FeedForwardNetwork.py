@@ -32,6 +32,7 @@ class Feedforward(torch.nn.Module):
 
         # Word Embeddings
         self.word_to_index, self.embeddings = WordEmbeddingLoader.load(
+            freeze=self.embedding_params['freeze'],
             data_path=self.embedding_params['data_path'],
             random=self.embedding_params['random'],
             frequency_threshold=self.embedding_params['frequency_threshold'],
@@ -48,7 +49,9 @@ class Feedforward(torch.nn.Module):
             self.sentence_model = BiLSTMInterface(
                 self.embedding_params['data_path'])
             print('Training for BiLTSM has started..')
-            self.sentence_model.load_and_train_bilstm(EMBEDDING_DIM, HIDDEN_DIM, usePretrained=True)
+            self.sentence_model.load_and_train_bilstm(EMBEDDING_DIM, HIDDEN_DIM, 
+                                                      usePretrained=not(self.embedding_params['random']), 
+                                                      freeze=self.embedding_params['freeze'])
             self.sentence_model.save_bilstm_to_binary('data_bilstm.bin')
             # self.sentence_model.load_bilstm_from_binary('data_bilstm.bin')
             print('Training for BiLTSM has ended and the model saved to data_bilstm.bin')

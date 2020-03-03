@@ -83,10 +83,11 @@ def run_training(config):
     embedding_params = {
         "method":    config['method'],
         "data_path": config['train_file'],
-        "random":  (config['bow_init_method'] == 'random'),
+        "random":  (config['init_method'] == 'random'),
         "frequency_threshold": config['bow_frequency_threshold'],
         "vector_size": config['weights_vector_size'],
-        "lowercase": config['lowercase']
+        "lowercase": config['lowercase'],
+        "freeze": config['freeze']
     }
     maxEpoch = config['maxepoch']
     learningRate = config['learningRate']
