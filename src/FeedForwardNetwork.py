@@ -35,21 +35,22 @@ class Feedforward(torch.nn.Module):
             data_path=self.embedding_params['data_path'],
             random=self.embedding_params['random'],
             frequency_threshold=self.embedding_params['frequency_threshold'],
-            vector_size=self.embedding_params['vector_size'])
+            vector_size=self.embedding_params['vector_size'],
+            lowercase=self.embedding_params['lowercase'])
 
         # Loading sentences model which is either bow or BiLTSM
         if embedding_params['method'] == 'bow':
             self.sentence_model = BagOfWords(
-                self.embeddings, self.word_to_index)
+                self.embeddings, self.word_to_index, lowercase=self.embedding_params['lowercase'])
         else:
             EMBEDDING_DIM = 300
             HIDDEN_DIM = 150
             self.sentence_model = BiLSTMInterface(
                 self.embedding_params['data_path'])
             print('Training for BiLTSM has started..')
-            #self.sentence_model.load_and_train_bilstm(EMBEDDING_DIM, HIDDEN_DIM, usePretrained=False)
-            # self.sentence_model.save_bilstm_to_binary('data_bilstm.bin')
-            self.sentence_model.load_bilstm_from_binary('data_bilstm.bin')
+            self.sentence_model.load_and_train_bilstm(EMBEDDING_DIM, HIDDEN_DIM, usePretrained=True)
+            self.sentence_model.save_bilstm_to_binary('data_bilstm.bin')
+            # self.sentence_model.load_bilstm_from_binary('data_bilstm.bin')
             print('Training for BiLTSM has ended and the model saved to data_bilstm.bin')
             self.sentence_model.bilstm.eval()
 

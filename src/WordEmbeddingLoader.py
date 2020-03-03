@@ -6,16 +6,15 @@ from torch import FloatTensor
 from numpy import random
 from collections import defaultdict
 
-
-STOPWORDS = ["i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"]
+from Tokenizer import Tokenizer
 
 class WordEmbeddingLoader():
-    def load(freeze=False, random=False, data_path=None, frequency_threshold=None, vector_size=None):
+    def load(freeze=False, random=False, data_path=None, frequency_threshold=None, vector_size=None, lowercase=True):
         """
         """
         if random:
             word_to_index, weights = WordEmbeddingLoader._build_random_weights(
-                data_path, frequency_threshold, vector_size)
+                data_path, frequency_threshold, vector_size, lowercase)
         else:
             word_to_index, weights = WordEmbeddingLoader._load_glove_weights()
 
@@ -23,7 +22,7 @@ class WordEmbeddingLoader():
 
         return word_to_index, embedding
 
-    def _build_random_weights(data_path, frequency_threshold, vector_size):
+    def _build_random_weights(data_path, frequency_threshold, vector_size, lowercase):
         """
         Build random weights using the training data set frequent words.
         """
@@ -33,13 +32,15 @@ class WordEmbeddingLoader():
         if not frequency_threshold:
             raise ValueError(
                 'frequency_threshold cannot be None for random word embeddings.')
+        
+        tokenizer = Tokenizer(lowercase)
 
         data = open(data_path, 'r', encoding="ISO-8859-1")
 
         # Compute histogram of words in training dataset.
         word_freq = defaultdict(lambda: 0)
         for line in data:
-            words = _tokenize(line)  # tokenize
+            words = tokenizer.tokenize(line)  # tokenize
             for word in words:
                 word_freq[word] += 1
 
@@ -89,13 +90,3 @@ class WordEmbeddingLoader():
         # print(weights[0])
 
         return word_to_index, weights
-
-def _tokenize(sentence):
-    """
-    Tokenize input sentence as a string to an array of individual words.
-    """
-    if sentence is None:
-        raise ValueError('Input sentence cannot be None')
-    if sentence == '':
-        return []
-    return [word.lower() for word in re.sub("[^\w]", " ", sentence).split() if word not in STOPWORDS]
