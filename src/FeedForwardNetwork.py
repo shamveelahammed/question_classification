@@ -37,7 +37,8 @@ class Feedforward(torch.nn.Module):
             random=self.embedding_params['random'],
             frequency_threshold=self.embedding_params['frequency_threshold'],
             vector_size=self.embedding_params['vector_size'],
-            lowercase=self.embedding_params['lowercase'])
+            lowercase=self.embedding_params['lowercase'],  
+            training_size=self.embedding_params['training_size'])
 
         # Loading sentences model which is either bow or BiLTSM
         if embedding_params['method'] == 'bow':
@@ -59,6 +60,8 @@ class Feedforward(torch.nn.Module):
             self.sentence_model.bilstm.eval()
 
         self.x, self.y, self.class_dictionary = self._getClassDictionary()
+        # preload class dictionary
+        self.full_x, self.full_y,self.full_class_dictionary = self._getFullClassDictionary()
 
         # input and output dimensions
         self.input_dim = self.x.shape[1]
@@ -191,7 +194,7 @@ class Feedforward(torch.nn.Module):
 
     def _getClassDictionary(self):
         x_train, y_train_arr = self._get_text_embedding(
-            self.sentence_model, self.embedding_params['data_path'])
+            self.sentence_model, self.embedding_params['temp_train'])
 
         y_classes = np.unique(y_train_arr)
         # print('Len y classes: {}'.format(len(y_classes)))
@@ -233,3 +236,14 @@ class Feedforward(torch.nn.Module):
     def predict(self, x):
         y_pred = self(x)
         return y_pred
+    
+    def _getFullClassDictionary(self):
+        x_train, y_train_arr = self._get_text_embedding(
+            self.sentence_model, self.embedding_params['data_path'])
+
+        y_classes = np.unique(y_train_arr)
+        dic = dict(zip(y_classes, list(range(0, len(y_classes)+1))))
+        
+        y_train = torch.from_numpy(
+            np.array([dic[v] for v in y_train_arr])).long()
+        return x_train, y_train, dic
