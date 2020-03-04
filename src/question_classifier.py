@@ -99,9 +99,15 @@ def run_training(config):
                         embedding_params, maxEpoch, learningRate)
     print(model)
 
+    # debug
+    # print(len(model.class_dictionary))
+    # print("Training Dictionary")
+    # print(json.dumps(model.class_dictionary, indent=1))
+
     # Training the model
     # return model with best accuracy
-    model = model.fit()
+    x_val, y_val = get_validation_data(config, model)
+    model = model.fit(x_val, y_val)
 
     # Not required to save during training
     # Export the model as a file
@@ -110,70 +116,56 @@ def run_training(config):
     torch.save(model, model_name)
     print('-----------Training complete-----------')
     print('The model has been exported to {}'.format(model_name))
+    print('---------------------------------------')
 
-    print('-----------Running Validation-----------')
-    validationScore = run_validation(config, model)
-    print('Validation Score: {}'.format(validationScore * 100))
+    # print('-----------Running Validation-----------')
+    # validationScore = run_validation(config, model)
+    # print('Validation Score: {}'.format(validationScore * 100))
 
 
-def run_validation(config, model):
+def get_validation_data(config, model):
     """
     TODO: This is just a stub - complete with relevant calls for processing (word embeddings, bow/bilstm) and testing against validation
     """
-    # parameter initialisations
-    # embedding_params = {
-    #     "method":    config['method'],
-    #     "data_path": config['dev_file'],
-    #     "random":  (config['bow_init_method'] == 'random'),
-    #     "frequency_threshold": config['bow_frequency_threshold'],
-    #     "vector_size": config['weights_vector_size']
-    # }
-    # maxEpoch = config['maxepoch']
-    # learningRate = config['learningRate']
 
-    # there are 3 layers, hence list must have 3 values
-    # hidden_layer_sizes = config['hidden_layer_sizes']
-
-    # create NN Classifier Instance
-    # takes 3 arguments: hidden layer sizes, embedding params, epoch, and learning rate
-    # model = Feedforward(hidden_layer_sizes,
-    #                     embedding_params, maxEpoch, learningRate)
-    # print(model)
-
-    # Training the model
-    # return model with best accuracy
-    # model = model.fit()
-
-    ##########################################
-
-    # Loss Function
-    criterion = torch.nn.CrossEntropyLoss()
-
-    # use model's BOW
-    BOW = model.sentence_model
+    # use model's sentence model - BOW or BiLSTM
+    sentence_model = model.sentence_model
 
     # Get Text embedding for testing
     x_val, y_val_arr = model._get_text_embedding(
-        BOW, config['dev_file'])
+        sentence_model, config['dev_file'])
 
     # use model's pre loaded class dictionary
     dic = model.class_dictionary
+
+    # print("Validation Dictionary")
+    # print(json.dumps(dic, indent=1))
 
     # Convert arrays to Tensors
     y_val = torch.from_numpy(
         np.array([dic[v] for v in y_val_arr])).long()
 
-    # predict test data
-    y_pred = model.predict(x_val)
+    # difference(y_val_arr, model.class_dictionary)
 
-    # evaluation
-    model.eval()
-    after_train_loss = criterion(y_pred.squeeze(), y_val)
-    # Evaluator
-    evaluator = Evaluator(y_pred.squeeze(), y_val)
-    return evaluator.get_f1_score()
+    return x_val, y_val
 
-    # print('-----------Validation complete-----------')
+
+# for debugging
+def difference(npArray,  dictionary):
+    suspects = []
+
+    for idx, item in enumerate(npArray):
+        # find dictionary with key = item
+        if dictionary.get(item) == None:
+            # if dictionary[item]:
+            suspects.append(item)
+        # print(dictionary[item])
+
+    if len(suspects) == 0:
+        print('All Class exists in Dictionary!')
+    else:
+        print('These classes are missing:')
+        print(suspects)
 
 
 def run_testing(config):

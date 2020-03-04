@@ -36,7 +36,8 @@ class FlatCnnLayer(nn.Module):
 
     def _make_filter_layer(self, filter_size):
         return nn.Sequential(
-            nn.Conv2d(1, self.out_channels, (filter_size, self.embedding_size)),
+            nn.Conv2d(1, self.out_channels,
+                      (filter_size, self.embedding_size)),
             nn.ReLU(inplace=True),
             nn.MaxPool2d((self.sequence_length - filter_size + 1, 1), stride=1)
         )

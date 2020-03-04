@@ -80,19 +80,17 @@ class Feedforward(torch.nn.Module):
     def forward(self, x):
         # hidden layer 1
         hidden1 = self.fc1(x)
-        # relu1 = self.relu(hidden1)
         activation1 = self.relu(hidden1)
 
         # hidden layer 2
         hidden2 = self.fc2(activation1)
-        # relu2 = self.relu(hidden2)
         activation2 = self.relu(hidden2)
 
         # output layer
         output = self.fc3(activation2)
         return output
 
-    def fit(self):
+    def fit(self, val_x, val_y):
         # Change to training mode
         self.train()
         print('Training NN started')
@@ -100,6 +98,7 @@ class Feedforward(torch.nn.Module):
         # Hyper-parameter: loss function
         # Hyper-Parameter: learning algorthem and learing rate
         optimizer = torch.optim.SGD(self.parameters(), lr=self.learning_rate)
+        # optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
 
         # start timer
         startTimer = time.process_time()
@@ -116,11 +115,15 @@ class Feedforward(torch.nn.Module):
 
         try:
             for epoch in range(self.epoch):
+                self.train()
                 optimizer.zero_grad()       # Forward pass
                 y_pred = self(self.x)            # Compute Loss
 
                 # print('Predicted: {}'.format(y_pred.squeeze()))
                 # print('Actual: {}'.format(Y))
+
+                # print(y_pred.squeeze().size())
+                # exit()
 
                 loss = criterion(y_pred.squeeze(), self.y)
 
@@ -139,15 +142,31 @@ class Feedforward(torch.nn.Module):
                 print("Correct predictions: {} / {}".format(correct_count, len(self.x)))
                 # print info
                 print(
-                    f'Epoch {epoch}: train loss: {loss.item():.5f} Precision: {precision:.5f} F1 Micro: {f1:.5f}')
+                    f'Epoch {epoch}: Train loss: {loss.item():.5f} Train Precision: {precision:.5f} Train F1 Micro: {f1:.5f}')
 
-                # select the best model
+                # validation
+                # self.eval()
+                # self.zero_grad()
+                y_val_pred = self(val_x)
+                val_loss = criterion(y_val_pred.squeeze(), val_y)
+                evaluator = Evaluator(y_val_pred.squeeze(), val_y)
+                val_correct_count, val_precision = evaluator.get_Precision()
+                val_f1 = evaluator.get_f1_score()
+                del evaluator
+
+                print(
+                    "Correct validations: {} / {}".format(val_correct_count, len(val_y)))
+                # print info
+                print(
+                    f'Validation loss: {val_loss.item():.5f} Validation Precision: {val_precision:.5f} Validation F1 Micro: {val_f1:.5f}')
+
+                # select the best model based on validation
                 # if precision > self.bestTrainAccuracy:
-                if loss.item() < self.bestTrainLoss:
+                if val_loss.item() < self.bestTrainLoss:
                     bestModel = self
-                    self.bestTrainAccuracy = precision
-                    self.bestTrainLoss = loss
-                    self.best_y_pred = y_pred
+                    self.bestTrainAccuracy = val_precision
+                    self.bestTrainLoss = val_loss
+                    self.best_y_pred = y_val_pred
             # end for
             endTimer = time.process_time()
             timeTaken = endTimer/600
@@ -155,7 +174,7 @@ class Feedforward(torch.nn.Module):
             # print('Returning best model with train accuracy {}'.format(
             #     self.bestTrainAccuracy))
             print(
-                f'Returning best model with train loss: {self.bestTrainLoss:.5f} and {self.bestTrainAccuracy:.5f}')
+                f'Returning best model with Validation loss: {self.bestTrainLoss:.5f} and Validation Accuracy: {self.bestTrainAccuracy:.5f}')
             return bestModel
 
         except KeyboardInterrupt:
@@ -169,7 +188,15 @@ class Feedforward(torch.nn.Module):
             self.sentence_model, self.embedding_params['data_path'])
 
         y_classes = np.unique(y_train_arr)
-        dic = dict(zip(y_classes, list(range(0, len(y_classes)+1))))
+        # print('Len y classes: {}'.format(len(y_classes)))
+        # exit()
+        mapping = list(range(0, len(y_classes)+1))
+        # print(len(mapping))
+        # exit()
+        # why 51??
+        dic = dict(zip(y_classes, mapping))
+        # print(len(dic))
+        # exit()
 
         y_train = torch.from_numpy(
             np.array([dic[v] for v in y_train_arr])).long()
