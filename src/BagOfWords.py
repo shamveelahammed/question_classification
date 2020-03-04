@@ -2,28 +2,19 @@ import re
 import numpy as np
 import torch
 
-STOPWORDS = ["i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "you're", "you've", "you'll", "you'd", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "she's", "her", "hers", "herself", "it", "it's", "its", "itself", "they", "them", "their", "theirs", "themselves", "this", "that", "that'll", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "as", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "once", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "don't", "should", "should've", "now", "d", "ll", "m", "o", "re", "ve", "y", "ain", "aren", "aren't", "couldn", "couldn't", "didn", "didn't", "doesn", "doesn't", "hadn", "hadn't", "hasn", "hasn't", "haven", "haven't", "isn", "isn't", "ma", "mightn", "mightn't", "mustn", "mustn't", "needn", "needn't", "shan", "shan't", "shouldn", "shouldn't", "wasn", "wasn't", "weren", "weren't", "won", "won't", "wouldn", "wouldn't"]
+from Tokenizer import Tokenizer
 
 class BagOfWords():
     """
     Class to handle Bag Of Words vector creation.
     """
-    def __init__(self, embeddings, word_to_index):
+    def __init__(self, embeddings, word_to_index, lowercase=True):
         super(BagOfWords, self).__init__()
         
+        self.tokenizer=Tokenizer(lowercase)
         self.embeddings = embeddings
         self.vector_size = embeddings.embedding_dim 
         self.word_to_index = word_to_index
-
-    def _tokenize(self, sentence):
-        """
-        Tokenize input sentence as a string to an array of individual words.
-        """
-        if sentence is None:
-            raise ValueError('Input sentence cannot be None')
-        if sentence == '':
-            return []
-        return [word.lower() for word in re.sub("[^\w]", " ", sentence).split() if word not in STOPWORDS]
     
     def _split_on_label(self, sentence):
         """
@@ -38,7 +29,7 @@ class BagOfWords():
         Given an sentence as a string, compute a vector as the element wise average of all word vectors.
         """
         label, sentence = self._split_on_label(sentence)
-        words = self._tokenize(sentence)
+        words = self.tokenizer.tokenize(sentence)
         
         # Initiate the sum of word vectors with an array of zeros.
         sum_of_vectors = torch.zeros(self.vector_size)
@@ -51,7 +42,7 @@ class BagOfWords():
                 word_vector = self.embeddings(word_index)
                 sum_of_vectors = torch.add(sum_of_vectors, word_vector)
             except KeyError:
-                sum_of_vectors = torch.add(sum_of_vectors, torch.rand(self.vector_size).type(torch.FloatTensor))
+                sum_of_vectors = torch.add(sum_of_vectors, torch.zeros(self.vector_size).type(torch.FloatTensor))
 
         # Return the element-wise average of the sum of vectors values.
         return torch.div(sum_of_vectors, len(words)), label

@@ -6,16 +6,15 @@ from torch import FloatTensor
 from numpy import random
 from collections import defaultdict
 
-
-STOPWORDS = ["i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "you're", "you've", "you'll", "you'd", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "she's", "her", "hers", "herself", "it", "it's", "its", "itself", "they", "them", "their", "theirs", "themselves", "this", "that", "that'll", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "as", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "once", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "don't", "should", "should've", "now", "d", "ll", "m", "o", "re", "ve", "y", "ain", "aren", "aren't", "couldn", "couldn't", "didn", "didn't", "doesn", "doesn't", "hadn", "hadn't", "hasn", "hasn't", "haven", "haven't", "isn", "isn't", "ma", "mightn", "mightn't", "mustn", "mustn't", "needn", "needn't", "shan", "shan't", "shouldn", "shouldn't", "wasn", "wasn't", "weren", "weren't", "won", "won't", "wouldn", "wouldn't"]
+from Tokenizer import Tokenizer
 
 class WordEmbeddingLoader():
-    def load(freeze=False, random=False, data_path=None, frequency_threshold=None, vector_size=None):
+    def load(freeze=False, random=False, data_path=None, frequency_threshold=None, vector_size=None, lowercase=True):
         """
         """
         if random:
             word_to_index, weights = WordEmbeddingLoader._build_random_weights(
-                data_path, frequency_threshold, vector_size)
+                data_path, frequency_threshold, vector_size, lowercase)
         else:
             word_to_index, weights = WordEmbeddingLoader._load_glove_weights()
 
@@ -23,7 +22,7 @@ class WordEmbeddingLoader():
 
         return word_to_index, embedding
 
-    def _build_random_weights(data_path, frequency_threshold, vector_size):
+    def _build_random_weights(data_path, frequency_threshold, vector_size, lowercase):
         """
         Build random weights using the training data set frequent words.
         """
@@ -33,13 +32,15 @@ class WordEmbeddingLoader():
         if not frequency_threshold:
             raise ValueError(
                 'frequency_threshold cannot be None for random word embeddings.')
+        
+        tokenizer = Tokenizer(lowercase)
 
         data = open(data_path, 'r', encoding="ISO-8859-1")
 
         # Compute histogram of words in training dataset.
         word_freq = defaultdict(lambda: 0)
         for line in data:
-            words = _tokenize(line)  # tokenize
+            words = tokenizer.tokenize(line)  # tokenize
             for word in words:
                 word_freq[word] += 1
 
@@ -89,13 +90,3 @@ class WordEmbeddingLoader():
         # print(weights[0])
 
         return word_to_index, weights
-
-def _tokenize(sentence):
-    """
-    Tokenize input sentence as a string to an array of individual words.
-    """
-    if sentence is None:
-        raise ValueError('Input sentence cannot be None')
-    if sentence == '':
-        return []
-    return [word.lower() for word in re.sub("[^\w]", " ", sentence).split() if word not in STOPWORDS]

@@ -9,13 +9,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from WordEmbeddingLoader  import WordEmbeddingLoader
+from Tokenizer import Tokenizer
 import sys
 from torch.autograd import Variable
 
-STOPWORDS = ["i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "you're", "you've", "you'll", "you'd", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "she's", "her", "hers", "herself", "it", "it's", "its", "itself", "they", "them", "their", "theirs", "themselves", "this", "that", "that'll", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "as", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "once", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "don't", "should", "should've", "now", "d", "ll", "m", "o", "re", "ve", "y", "ain", "aren", "aren't", "couldn", "couldn't", "didn", "didn't", "doesn", "doesn't", "hadn", "hadn't", "hasn", "hasn't", "haven", "haven't", "isn", "isn't", "ma", "mightn", "mightn't", "mustn", "mustn't", "needn", "needn't", "shan", "shan't", "shouldn", "shouldn't", "wasn", "wasn't", "weren", "weren't", "won", "won't", "wouldn", "wouldn't"]
 
 class BiLSTMInterface():
-    def __init__(self, file_path):
+    def __init__(self, file_path, lowercase=True):
+        self.tokenizer = Tokenizer(lowercase)
         self.training_data = self.load_training_data(file_path)
         self.word_to_index = self.build_word_to_index()
         self.label_to_index = self.build_label_to_index()
@@ -25,7 +26,7 @@ class BiLSTMInterface():
     def get_vector(self, sentence):
         label, sentence = self._split_on_label(sentence)
         with torch.no_grad():
-            inputs = self.prepare_sequence(_tokenize(sentence))
+            inputs = self.prepare_sequence(self.tokenizer.tokenize(sentence))
             return self.bilstm(inputs),label
 
     def _split_on_label(self, sentence):
@@ -44,11 +45,11 @@ class BiLSTMInterface():
         """Load the BiLSTM model for dev purposes"""
         self.bilstm = torch.load(filepath)
 
-    def load_and_train_bilstm(self, embedding_dim, hidden_dim, usePretrained=False):
+    def load_and_train_bilstm(self, embedding_dim, hidden_dim, freeze, usePretrained=False):
         """Create and load bilstm"""
         if usePretrained:
             _, embeddings = WordEmbeddingLoader._load_glove_weights()
-            model = BiLSTM(embedding_dim, hidden_dim, len(self.word_to_index), len(self.label_to_index), embeddings)
+            model = BiLSTM(embedding_dim, hidden_dim, len(self.word_to_index), len(self.label_to_index), pretrained_vec=embeddings, freeze=freeze)
         else:
             model = BiLSTM(embedding_dim, hidden_dim, len(self.word_to_index), len(self.label_to_index), None)
         
@@ -114,7 +115,7 @@ class BiLSTMInterface():
         for line in fp.readlines():
             label = line.split(' ', 1)[0]
             sentence = line.split(' ', 1)[1]
-            sentence = _tokenize(sentence)
+            sentence = self.tokenizer.tokenize(sentence)
             training_data.append((sentence, label))
         
         fp.close()
@@ -149,13 +150,13 @@ class BiLSTMInterface():
         return torch.tensor([self.label_to_index[label]], dtype=torch.long)
 
 class BiLSTM(nn.Module):
-    def __init__(self, embedding_dim, hidden_dim, vocab_size, labelset_size, pretrained_vec=None):
+    def __init__(self, embedding_dim, hidden_dim, vocab_size, labelset_size, freeze, pretrained_vec=None):
         super(BiLSTM, self).__init__()
         self.hidden_dim = hidden_dim
         if pretrained_vec is None:
             self.word_embeddings = nn.Embedding(vocab_size, embedding_dim)
         else:    
-            self.word_embeddings = nn.Embedding.from_pretrained(pretrained_vec)
+            self.word_embeddings = nn.Embedding.from_pretrained(embeddings=pretrained_vec, freeze=freeze)
 
         self.lstm = nn.LSTM(input_size=embedding_dim, hidden_size=hidden_dim, bidirectional=True)
         self.hidden2label = nn.Linear(hidden_dim * 2, labelset_size)
@@ -170,25 +171,3 @@ class BiLSTM(nn.Module):
         lstm_out, (h_n, c_n) = self.lstm(embedds)
         label_scores = self.hidden2label(torch.cat([c_n[i,:, :] for i in range(c_n.shape[0])], dim=1))
         return label_scores
-
-def _tokenize(sentence):
-    """
-    Tokenize input sentence as a string to an array of individual words.
-    """
-    if sentence is None:
-        raise ValueError('Input sentence cannot be None')
-    if sentence == '':
-        return []
-    return [word.lower() for word in re.sub("[^\w]", " ", sentence).split() if word not in STOPWORDS]
-
-## Testing
-# EMBEDDING_DIM = 300
-# HIDDEN_DIM = 150
-# bilstm = BiLSTMInterface('../data/train.txt')
-# bilstm.load_and_train_bilstm(EMBEDDING_DIM, HIDDEN_DIM, usePretrained=False)
-# bilstm.save_bilstm_to_binary('data_bilstm.bin')
-
-# bilstm2 = BiLSTMInterface('../data/train.txt')
-# bilstm2.load_bilstm_from_binary('data_bilstm.bin')
-# print(bilstm2.to_vector('How did serfdom develop in and then leave Russia ?'))
-# print(bilstm2.to_vector('What is the date of Boxing Day ?'))
