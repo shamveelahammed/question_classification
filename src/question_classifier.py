@@ -87,7 +87,9 @@ def run_training(config):
         "frequency_threshold": config['bow_frequency_threshold'],
         "vector_size": config['weights_vector_size'],
         "lowercase": config['lowercase'],
-        "freeze": config['freeze']
+        "freeze": config['freeze'],
+        "training_size": config['training_size'],
+        "temp_train":config['temp_train']
     }
     maxEpoch = config['maxepoch']
     learningRate = config['learningRate']
@@ -138,7 +140,9 @@ def get_validation_data(config, model):
         sentence_model, config['dev_file'])
 
     # use model's pre loaded class dictionary
-    dic = model.class_dictionary
+    # dic = model.class_dictionary
+    
+    dic = model.full_class_dictionary
 
     # print("Validation Dictionary")
     # print(json.dumps(dic, indent=1))

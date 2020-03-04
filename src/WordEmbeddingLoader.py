@@ -5,24 +5,38 @@ from torch.nn import Embedding
 from torch import FloatTensor
 from numpy import random
 from collections import defaultdict
+import pandas as pd
 
 from Tokenizer import Tokenizer
 
+def partition_data(data, training_size):
+    df = pd.DataFrame(data)
+    train, val = np.split(df, [int(training_size*len(df))])
+    # create a temp file
+    with open("../data/temp_train.txt", "w") as file:
+        for line in train.values.tolist():
+            file.write(line[0])
+           
+        
+    return train.values.tolist()
+        
 class WordEmbeddingLoader():
-    def load(freeze=False, random=False, data_path=None, frequency_threshold=None, vector_size=None, lowercase=True):
+    def load(freeze=False, random=False, data_path=None, frequency_threshold=None, vector_size=None, lowercase=True, training_size=None):
         """
         """
         if random:
             word_to_index, weights = WordEmbeddingLoader._build_random_weights(
-                data_path, frequency_threshold, vector_size, lowercase)
+                data_path, frequency_threshold, vector_size, lowercase, training_size)
         else:
             word_to_index, weights = WordEmbeddingLoader._load_glove_weights()
 
         embedding = Embedding.from_pretrained(weights, freeze=freeze)
 
         return word_to_index, embedding
-
-    def _build_random_weights(data_path, frequency_threshold, vector_size, lowercase):
+    
+    
+    
+    def _build_random_weights(data_path, frequency_threshold, vector_size, lowercase, training_size):
         """
         Build random weights using the training data set frequent words.
         """
@@ -36,11 +50,12 @@ class WordEmbeddingLoader():
         tokenizer = Tokenizer(lowercase)
 
         data = open(data_path, 'r', encoding="ISO-8859-1")
-
+        
+        data = partition_data(data, training_size)
         # Compute histogram of words in training dataset.
         word_freq = defaultdict(lambda: 0)
         for line in data:
-            words = tokenizer.tokenize(line)  # tokenize
+            words = tokenizer.tokenize(line[0])  # tokenize
             for word in words:
                 word_freq[word] += 1
 
