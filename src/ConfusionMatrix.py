@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import pandas as pd
+import time
 
 
 # conMat = ConfusionMatrix(y_predicted, y_actual)
@@ -38,6 +39,12 @@ class ConfusionMatrix():
 
         print(pd.DataFrame(result))
 
+    def thematrixTrick(self):
+        while True:
+            matrix = np.random.randint(100, size=(50, 66))
+            print(pd.DataFrame(matrix))
+            time.sleep(0.05)
+
 
 if __name__ == "__main__":
     # python3 Evaluator.py
@@ -48,8 +55,9 @@ if __name__ == "__main__":
     y_predicted = [1, 2, 3, 2, 3, 1, 3, 2, 1, 2]
     y_actual = torch.tensor([2, 2, 3, 1, 3, 1, 3, 2, 3, 2])
 
-    conMat = ConfusionMatrix(y_predicted, y_actual)
-    conMat.getConfusionMatrix()
+    conMat = ConfusionMatrix(y_predicted, y_predicted, y_actual)
+    # conMat.getConfusionMatrix()
+    # conMat.thematrixTrick()
 
 # [[1 1 1]
 #  [1 3 0]
