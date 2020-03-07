@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 import torch
 import numpy as np
 import yaml
+import sys
 
 # word embedding methods
 from BagOfWords import BagOfWords
@@ -16,6 +17,7 @@ from FeedForwardNetwork import Feedforward
 
 # evaluation
 from Evaluator import Evaluator
+from ConfusionMatrix import ConfusionMatrix
 
 
 def build_parser():
@@ -89,7 +91,7 @@ def run_training(config):
         "lowercase": config['lowercase'],
         "freeze": config['freeze'],
         "training_size": config['training_size'],
-        "temp_train":config['temp_train']
+        "temp_train": config['temp_train']
     }
     maxEpoch = config['maxepoch']
     learningRate = config['learningRate']
@@ -141,7 +143,7 @@ def get_validation_data(config, model):
 
     # use model's pre loaded class dictionary
     # dic = model.class_dictionary
-    
+
     dic = model.full_class_dictionary
 
     # print("Validation Dictionary")
@@ -216,17 +218,27 @@ def run_testing(config):
     correct_count, precision = evaluator.get_Precision()
     f1 = evaluator.get_f1_score()
 
-    # for confusion matrix purposes
-    # print("Predicted:")
-    # print(evaluator.predicted_labels)
-    # print("Actual:")
-    # print(evaluator.actual_labels.tolist())
-
     # print info
     print('Test loss: ', after_train_loss.item())
     print("Correct predictions: {} / {}".format(correct_count, len(x_test)))
     print('Precision: {}'.format(precision))
     print('F1 micro Score: {}'.format(f1))
+
+    # for confusion matrix purposes
+    # print("Predicted:")
+    # print(evaluator.predicted_labels)
+    # print("Actual:")
+    # print(evaluator.actual_labels.tolist())
+    print('----------------------------------------')
+    print('----------- Confusion Matrix -----------')
+    print('----------------------------------------')
+    conMatGenerator = ConfusionMatrix(model.class_dictionary,
+                                      evaluator.predicted_labels,
+                                      evaluator.actual_labels)
+    conMatGenerator.getConfusionMatrix()
+    # np.set_printoptions(threshold=sys.maxsize)
+    # np.set_printoptions(threshold=np.inf)
+    # print(conMat)
 
 
 if __name__ == "__main__":
@@ -249,12 +261,3 @@ if __name__ == "__main__":
 #     print(y_classes[indices.item()])
 
 # print("Hello World")
-
-# def get_accuracy(truth, pred):
-# assert len(truth) == len(pred)
-# right = 0
-# for i in range(len(truth)):
-#     values, indices = torch.max(pred[i], 0)
-#     if truth[i].item() == indices.item():
-#         right += 1.0
-# return right

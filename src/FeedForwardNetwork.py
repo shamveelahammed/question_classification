@@ -69,7 +69,6 @@ class Feedforward(torch.nn.Module):
 
         # layer sizes
         self.hidden_size = hidden_sizes[0]
-        # self.hidden_size2 = int(self.hidden_size)
         self.hidden_size2 = hidden_sizes[1]
 
         # Layers of Nerual network
@@ -77,11 +76,10 @@ class Feedforward(torch.nn.Module):
         self.fc1 = torch.nn.Linear(self.input_dim, self.hidden_size)
         # activation Relu
         self.relu = torch.nn.ReLU()
-        self.sigmoid = torch.nn.Sigmoid()
+        # activation SELU
+        self.selu = torch.nn.SELU()
         # hidden layer 2
         self.fc2 = torch.nn.Linear(self.hidden_size, self.hidden_size2)
-        # activation softmax
-        self.softmax = torch.nn.Softmax(dim=1)
         # output
         self.fc3 = torch.nn.Linear(self.hidden_size2, self.no_output_classes)
 
@@ -127,17 +125,7 @@ class Feedforward(torch.nn.Module):
                 optimizer.zero_grad()       # Forward pass
                 y_pred = self(self.x)            # Compute Loss
 
-                # print('Predicted: {}'.format(y_pred.squeeze()))
-                # print('Actual: {}'.format(Y))
-
-                # print(y_pred.squeeze().size())
-                # exit()
-
                 loss = criterion(y_pred.squeeze(), self.y)
-
-                # Backward pass
-                # Hyper-paramter, for Backpropagation
-                # loss.backward(retain_graph=True)
                 loss.backward()
                 optimizer.step()
 
@@ -197,15 +185,8 @@ class Feedforward(torch.nn.Module):
             self.sentence_model, self.embedding_params['temp_train'])
 
         y_classes = np.unique(y_train_arr)
-        # print('Len y classes: {}'.format(len(y_classes)))
-        # exit()
         mapping = list(range(0, len(y_classes)+1))
-        # print(len(mapping))
-        # exit()
-        # why 51??
         dic = dict(zip(y_classes, mapping))
-        # print(len(dic))
-        # exit()
 
         y_train = torch.from_numpy(
             np.array([dic[v] for v in y_train_arr])).long()
