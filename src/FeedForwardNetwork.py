@@ -74,12 +74,20 @@ class Feedforward(torch.nn.Module):
         # Layers of Nerual network
         # hidden layer 1
         self.fc1 = torch.nn.Linear(self.input_dim, self.hidden_size)
+
+        # Drop out
+        self.drop_layer = torch.nn.Dropout(p=0.5)
+
         # activation Relu
         self.relu = torch.nn.ReLU()
         # activation SELU
         self.selu = torch.nn.SELU()
         # hidden layer 2
         self.fc2 = torch.nn.Linear(self.hidden_size, self.hidden_size2)
+
+        # Drop out #2
+        self.drop_layer2 = torch.nn.Dropout(p=0.5)
+
         # output
         self.fc3 = torch.nn.Linear(self.hidden_size2, self.no_output_classes)
 
@@ -87,11 +95,14 @@ class Feedforward(torch.nn.Module):
         # hidden layer 1
         hidden1 = self.fc1(x)
         activation1 = self.relu(hidden1)
+        activation1 = self.drop_layer(activation1)
+        # Drop out
+        
 
         # hidden layer 2
         hidden2 = self.fc2(activation1)
         activation2 = self.relu(hidden2)
-
+        activation2 = self.drop_layer(activation2)
         # output layer
         output = self.fc3(activation2)
         return output
@@ -103,7 +114,7 @@ class Feedforward(torch.nn.Module):
         criterion = torch.nn.CrossEntropyLoss()
         # Hyper-parameter: loss function
         # Hyper-Parameter: learning algorthem and learing rate
-        optimizer = torch.optim.SGD(self.parameters(), lr=self.learning_rate)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
         # optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
 
         # start timer
