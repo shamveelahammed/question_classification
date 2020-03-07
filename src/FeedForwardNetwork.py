@@ -205,7 +205,7 @@ class Feedforward(torch.nn.Module):
         return x_train, y_train, dic
 
     def _get_text_embedding(self, model, train_file):
-        print('Started loading text embedding...')
+        print('Started loading text embedding for FFNN...')
 
         # Arrays to have trainings/labels
         x_train_arr = []
@@ -222,7 +222,7 @@ class Feedforward(torch.nn.Module):
                 next_line = fp.readline()
 
         x_train = torch.stack(x_train_arr)
-        print('Finished loading text embedding...')
+        print('Finished loading text embedding for FFNN...')
         return x_train, y_train_arr
 
     def predict(self, x):
