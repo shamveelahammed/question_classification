@@ -221,10 +221,10 @@ def run_testing(config):
     f1 = evaluator.get_f1_score()
 
     # print info
-    print('Test loss: ', after_train_loss.item())
+    print(f'Test loss: {after_train_loss.item():.5f}')
     print("Correct predictions: {} / {}".format(correct_count, len(x_test)))
-    print('Precision: {}'.format(precision))
-    print('F1 micro Score: {}'.format(f1))
+    print(f'Precision: {precision:.5f}')
+    print(f'F1 micro Score: {f1:.5f}')
 
     # for confusion matrix purposes
     # print("Predicted:")

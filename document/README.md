@@ -1,4 +1,4 @@
-# question_classification
+# Question Classification
 
 ## WordEmbeddingLoader
 ### HOW TO USE
@@ -98,27 +98,6 @@ tensor([[-1.8807e-01,  2.7060e-01,  1.4559e-01, -3.8446e-01, -4.4511e-01,
 ENTY:food
 ```
 
-## Training Classifier
-### HOW TO USE
-* BOW
-- Train the model
-```bash
-python question_classifier.py train --train_file ..\data\train_5500.label.txt --model bow --config_file parameter.config --model_file model.bin
-```
-```bash --train_file  ``` The training data to be used to train the model. <br />
-```bash --model ``` Which model to use, it either Bow/BiLTSM <br />
-```bash --config_file  ``` the hyper-paramters to train the model and NN <br />
-```bash --model_file  ``` where will the trained model to be saved
-
-- Test the model
-```bash
-python question_classifier.py test --test_file ..\data\test_label.txt --model bow --config_file parameter.config --model_file model.bin
-```
-```bash --train_file  ``` The data to be used to test the model. <br />
-```bash --model ``` Which model to use, it either Bow/BiLTSM <br />
-```bash --config_file  ``` the hyper-paramters to train the model and NN <br />
-```bash --model_file  ``` the pre-trained model to predict accurecy
-
 ## BiLSTMInterface
 ### HOW TO USE
 ```python
@@ -126,9 +105,23 @@ from BiLSTMInterface import BiLSTMInterface
 
 EMBEDDING_DIM = 32
 HIDDEN_DIM = 32
-
 bilst = BiLSTMInterface('../data/train_label.txt', EMBEDDING_DIM, HIDDEN_DIM)
 
 vector = bow.get_vector("What do you get by adding Lactobacillus bulgaricus to milk ?")
 print(vector)
 ```
+
+## Training Classifier
+### HOW TO USE
+- To train the model
+```bash
+python question_classifier.py train --config_file parameter.config 
+```
+```bash --config_file  ``` the hyper-paramters to train the model and NN <br />
+
+- To test the model
+```bash
+python question_classifier.py test --config_file parameter.config 
+```
+```bash --config_file  ``` the hyper-paramters to test the model and NN <br />
+
