@@ -6,6 +6,8 @@ import torch
 import numpy as np
 import yaml
 import sys
+import seaborn as sns  # https://likegeeks.com/seaborn-heatmap-tutorial/
+import matplotlib.pyplot as plt
 
 # word embedding methods
 from BagOfWords import BagOfWords
@@ -235,10 +237,14 @@ def run_testing(config):
     conMatGenerator = ConfusionMatrix(model.class_dictionary,
                                       evaluator.predicted_labels,
                                       evaluator.actual_labels)
-    conMatGenerator.getConfusionMatrix()
+    cm_df = conMatGenerator.getConfusionMatrix()
+    # print(cm_df)
+    heat_map = sns.heatmap(cm_df, center=0,  vmin=0, vmax=10)
     # np.set_printoptions(threshold=sys.maxsize)
     # np.set_printoptions(threshold=np.inf)
-    # print(conMat)
+    print(cm_df.shape)
+    plt.show()
+    return cm_df
 
 
 if __name__ == "__main__":

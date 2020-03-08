@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import pandas as pd
 import time
+import seaborn as sns
 
 
 # conMat = ConfusionMatrix(y_predicted, y_actual)
@@ -36,8 +37,11 @@ class ConfusionMatrix():
             result.append(countList)
 
         result = np.asarray(result)
+        resultdf = pd.DataFrame(result)
 
-        print(pd.DataFrame(result))
+        # print(resultdf)
+        # sns.heatmap(resultdf, annot=True)
+        return resultdf
 
     def thematrixTrick(self):
         while True:
