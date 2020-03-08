@@ -1,6 +1,32 @@
 # Question Classification
 
+## Tokenizer
+This is a class to handle tokenization of sentences, as well as setting to lower-case, removing stopwords and punctuation.
+The class interface takes as input parameter 'lower' which can be set to either True or False, to toggle on or off the setting to lowercase. 
+### HOW TO USE
+```python
+from Tokenizer import Tokenizer
+
+tokenizer = Tokenizer(lower=True) # set lower to either True or False if words need to be set to lowercase or not.
+sentence = 'This acts as an example question to point out the capabilities, including stopwords ?'
+print(tokenizer.tokenize(sentence))
+```
+```bash
+['this', 'acts', 'example', 'question', 'point', 'capabilities', 'including', 'stopwords']
+```
+
 ## WordEmbeddingLoader
+This is a class that loads word embeddings, either GloVe or Random, by calling the load method. The class returns a dictionary
+which maps each train word to an index, and a dictionary (the torch.nn.Embedding object) which maps each index to a tensor array.
+By looking up the index of a word, we can extract its word embeddings using the embedding dictionary returned by the Loader.
+
+For GloVe, this method has only one input parameter 'freeze' which can be True or False to toggle on and off the fine-tuning.
+The method initializes the embedding as a torch.nn.Embedding object from the glove.txt file in data/. This object also takes 'freeze' as an input parameters.
+
+For Random, this method takes as input parameters 'random=True', 'data_path=LOCATION_OF_TRAIN_DATA' and 'frequency_threshold=K'.
+If random flag is set to true, the method will expect the location of the training data, to load the words from it, and assing
+each an random embedding. The frequency threshold K value defines how frequent a word needs to be found in the training data
+to be loaded in the embedding dictionary and given a random embedding.
 ### HOW TO USE
 * GloVe
 ```python
@@ -62,6 +88,9 @@ tensor([[ 3.9767, -3.7362,  1.3508,  5.3946,  6.1296,  7.9175,  4.6109,  9.7723,
          -7.1193, -6.6784, -4.9679,  5.2280]], grad_fn=<EmbeddingBackward>)
 ```
 ## BagOfWords
+This is an class, that, initialized with the word_to_index and embedding dictionary returned by WordEmbeddingLoader.load method,
+returns via the get_vector method a vector representation of the sentence as a Bag Of Words. The BagOfWords also returns the label
+of the data, if this exists.
 ### HOW TO USE
 ```python
 from WordEmbeddingLoader import WordEmbeddingLoader
@@ -99,16 +128,40 @@ ENTY:food
 ```
 
 ## BiLSTMInterface
+This is an interface class, that initialized with the location of the training data, and the lowercase flag needed by the Tokenizer, load the data and prepares the word_to_index and the label_to_index dictionaries for BiLSMT to use.
+
+The class method load_and_train_bilstm, loads the word embeddings, either random or pretrained (specified by usePretrained param),
+and initializes a BiLSTM object (torch.nn.Model calling torch.nn.LSTM) and trains it using the word_to_index, label_to_index, and
+the word embeddings. The freeze parameters of this method is passed along to the glove loader, to either freeze or fine-tune. This method requires the embeddings dimension and the hidden dimension, to pass them along to the BiLSTM object.
+
+The class method get_vector has the same interface as the BagOfWords class, which takes a sentence, and returns the label and a vector which is resulted by passing the tokenized sentence to the BiLSTM. This vector has 50 elements - which reflect the number of classes.
+
 ### HOW TO USE
 ```python
 from BiLSTMInterface import BiLSTMInterface
 
 EMBEDDING_DIM = 32
 HIDDEN_DIM = 32
-bilst = BiLSTMInterface('../data/train_label.txt', EMBEDDING_DIM, HIDDEN_DIM)
+bilstm = BiLSTMInterface('../data/train_label.txt', lowercase=True)
+bilstm.load_and_train_bilstm(EMBEDDING_DIM, HIDDEN_DIM, freeze=False, usePretrained=False)
 
-vector = bow.get_vector("What do you get by adding Lactobacillus bulgaricus to milk ?")
+label, vector = bilstm.get_vector("ENTY:food What do you get by adding Lactobacillus bulgaricus to milk ?")
 print(vector)
+print(label)
+```
+```bash
+tensor([[-1.8807e-01,  2.7060e-01,  1.4559e-01, -3.8446e-01, -4.4511e-01,
+          1.6268e-01, -4.6611e-02,  1.6292e-01,  1.8894e-01, -2.2770e-01,
+          9.3888e-03,  4.3767e-02,  1.5394e-01,  6.6573e-02, -5.0421e-02,
+         -2.3298e-01,  1.4011e-02,  1.3735e-01, -3.9502e-01,  4.2976e-01,
+          2.4106e-01,  6.1968e-03, -5.0587e-02, -1.6007e-01, -1.2037e-02,
+          2.8739e-01, -2.9323e-02, -4.5859e-01,  1.8303e-01, -2.0574e-02,
+          4.8003e-02,  4.9990e-01, -3.2117e-02,  8.8852e-03,  2.2014e-02,
+          3.4009e-01,  9.5243e-02,  3.8049e-02, -1.7309e-02, -2.9080e-01,
+         -2.8072e-01, -1.7928e-01, -2.7879e-01, -4.2960e-01, -1.6043e-01,
+          1.6936e-01, -1.3036e-01, -3.7004e-01, -2.2629e-01, -7.5640e-01]],
+       grad_fn=<DivBackward0>)
+ENTY:food
 ```
 
 ## Training Classifier
