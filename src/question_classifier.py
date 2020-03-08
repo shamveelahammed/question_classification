@@ -107,28 +107,25 @@ def run_training(config):
                         embedding_params, maxEpoch, learningRate)
     print(model)
 
-    # debug
-    # print(len(model.class_dictionary))
-    # print("Training Dictionary")
-    # print(json.dumps(model.class_dictionary, indent=1))
-
     # Training the model
     # return model with best accuracy
     x_val, y_val = get_validation_data(config, model)
     model = model.fit(x_val, y_val)
 
-    # Not required to save during training
     # Export the model as a file
     model.eval()
     model_name = config['save_model_as']
     torch.save(model, model_name)
+
+    # visualisation purposes
+    # print('Train Losses')
+    # print(model.trainLosses)
+    # print('Validation Losses')
+    # print(model.valLosses)
+
     print('-----------Training complete-----------')
     print('The model has been exported to {}'.format(model_name))
     print('---------------------------------------')
-
-    # print('-----------Running Validation-----------')
-    # validationScore = run_validation(config, model)
-    # print('Validation Score: {}'.format(validationScore * 100))
 
 
 def get_validation_data(config, model):
@@ -148,14 +145,9 @@ def get_validation_data(config, model):
 
     dic = model.full_class_dictionary
 
-    # print("Validation Dictionary")
-    # print(json.dumps(dic, indent=1))
-
     # Convert arrays to Tensors
     y_val = torch.from_numpy(
         np.array([dic[v] for v in y_val_arr])).long()
-
-    # difference(y_val_arr, model.class_dictionary)
 
     return x_val, y_val
 
@@ -179,9 +171,6 @@ def difference(npArray,  dictionary):
 
 
 def run_testing(config):
-    """
-    TODO: This is just a stub - complete with relevant calls for processing (word embeddings, bow/bilstm) and testing
-    """
     assert config['trained_model'] != ""
 
     # load model
@@ -226,11 +215,6 @@ def run_testing(config):
     print(f'Precision: {precision:.5f}')
     print(f'F1 micro Score: {f1:.5f}')
 
-    # for confusion matrix purposes
-    # print("Predicted:")
-    # print(evaluator.predicted_labels)
-    # print("Actual:")
-    # print(evaluator.actual_labels.tolist())
     print('----------------------------------------')
     print('----------- Confusion Matrix -----------')
     print('----------------------------------------')
@@ -238,19 +222,99 @@ def run_testing(config):
                                       evaluator.predicted_labels,
                                       evaluator.actual_labels)
     cm_df = conMatGenerator.getConfusionMatrix()
-    # print(cm_df)
-    heat_map = sns.heatmap(cm_df, center=0,  vmin=0, vmax=10)
-    # np.set_printoptions(threshold=sys.maxsize)
-    # np.set_printoptions(threshold=np.inf)
-    print(cm_df.shape)
+    print(cm_df)
+    heat_map = sns.heatmap(cm_df, center=0,  vmin=0, vmax=15)
     plt.show()
-    return cm_df
+    # output txt
+    buildOutputTxt(config['test_file'], y_test_arr,
+                   evaluator.predicted_labels, dic, f1)
+    print('----------------------------------------')
+    print('---------------- Finish ----------------')
+    print('Results have been stored in Output.txt')
+    print('----------------------------------------')
+
+
+def buildOutputTxt(dataFile, y_arr, y_pred, dic, score):
+    # convert classes from indices back to string form
+    y_pred_list = []
+    for item in y_pred:
+        for key, value in dic.items():
+            if value == item:
+                y_pred_list.append(key)
+
+    # Open Test Data File
+    with open(dataFile, encoding="ISO-8859-1") as f:  # 515
+        testData = f.read().split('\n')
+    f.close()
+
+    # get only the question
+    questions = []
+    for sentence in testData:
+        question_words = sentence.split(' ')[1:]
+        question_sentence = ' '.join(question_words)
+        if len(question_words) != 0:
+            questions.append(question_sentence)
+
+    # create padded alignment
+    questions_padded = padding(questions)
+    y_pred_padded = padding(y_pred_list)
+
+    # printing
+    # for i in range(0, len(questions_padded)):
+    #     print('{}\t{}\t\t{}'.format(
+    #         questions_padded[i], y_pred_padded[i], y_arr[i]))
+    with open('output.txt', 'w') as f:
+        f.write('THIS FILE MUST BE VIEWED FULL SCREEN\n')
+        f.write(
+            '----------------------------------------------------------------------------------------------------------------------------------------------------------------------\n')
+        f.write(
+            '\t\t\tQuestions\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tPredicted\t\tActual\n')
+        f.write(
+            '----------------------------------------------------------------------------------------------------------------------------------------------------------------------\n')
+        for i in range(0, len(questions_padded)):
+            f.write('{}{}{}\n'.format(
+                questions_padded[i], y_pred_padded[i], y_arr[i]))
+        f.write(
+            '----------------------------------------------------------------------------------------------------------------------------------------------------------------------\n')
+        f.write(
+            '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tF1 Accuracy (%): {}\t\t\n'.format(score * 100))
+        f.write(
+            '----------------------------------------------------------------------------------------------------------------------------------------------------------------------\n')
+    f.close()
+
+
+def padding(itemslist):
+    # find max
+    # get max lengh
+    maxLength = 0
+    longest = ''
+    for item in itemslist:
+        if len(item) > maxLength:
+            maxLength = len(item)
+            longest = item
+
+    # padding
+    list_padded = []
+    for item in itemslist:
+        if len(item) < maxLength:
+            diff = maxLength - len(item)
+            emptystr = ''
+            for j in range(0, diff):
+                emptystr += ' '
+            item += emptystr
+
+        list_padded.append(item)
+
+    return list_padded
 
 
 if __name__ == "__main__":
     parser = build_parser()
     run(parser)
 
+
+# np.set_printoptions(threshold=sys.maxsize)
+# np.set_printoptions(threshold=np.inf)
 
 # Done for testing the model, to be reomved later !
 # print('Live Testing for Model Champion: Press Ctrl + C to exit !')
@@ -265,5 +329,3 @@ if __name__ == "__main__":
 #     pred = values, indices = torch.max(output[0], 0)
 #     print(pred)
 #     print(y_classes[indices.item()])
-
-# print("Hello World")

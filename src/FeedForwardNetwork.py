@@ -25,6 +25,9 @@ class Feedforward(torch.nn.Module):
         self.epoch = epoch
         self.learning_rate = learning_rate
 
+        self.trainLosses = []
+        self.valLosses = []
+
         # getting best model
         self.bestTrainAccuracy = 0
         self.best_y_pred = None
@@ -37,7 +40,7 @@ class Feedforward(torch.nn.Module):
             random=self.embedding_params['random'],
             frequency_threshold=self.embedding_params['frequency_threshold'],
             vector_size=self.embedding_params['vector_size'],
-            lowercase=self.embedding_params['lowercase'],  
+            lowercase=self.embedding_params['lowercase'],
             training_size=self.embedding_params['training_size'])
 
         # Loading sentences model which is either bow or BiLTSM
@@ -61,7 +64,7 @@ class Feedforward(torch.nn.Module):
 
         self.x, self.y, self.class_dictionary = self._getClassDictionary()
         # preload class dictionary
-        self.full_x, self.full_y,self.full_class_dictionary = self._getFullClassDictionary()
+        self.full_x, self.full_y, self.full_class_dictionary = self._getFullClassDictionary()
 
         # input and output dimensions
         self.input_dim = self.x.shape[1]
@@ -97,7 +100,6 @@ class Feedforward(torch.nn.Module):
         activation1 = self.relu(hidden1)
         activation1 = self.drop_layer(activation1)
         # Drop out
-        
 
         # hidden layer 2
         hidden2 = self.fc2(activation1)
@@ -115,7 +117,6 @@ class Feedforward(torch.nn.Module):
         # Hyper-parameter: loss function
         # Hyper-Parameter: learning algorthem and learing rate
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
-        # optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
 
         # start timer
         startTimer = time.process_time()
@@ -137,6 +138,7 @@ class Feedforward(torch.nn.Module):
                 y_pred = self(self.x)            # Compute Loss
 
                 loss = criterion(y_pred.squeeze(), self.y)
+                self.trainLosses.append(loss.item())
                 loss.backward()
                 optimizer.step()
 
@@ -157,6 +159,7 @@ class Feedforward(torch.nn.Module):
                 # self.zero_grad()
                 y_val_pred = self(val_x)
                 val_loss = criterion(y_val_pred.squeeze(), val_y)
+                self.valLosses.append(val_loss.item())
                 evaluator = Evaluator(y_val_pred.squeeze(), val_y)
                 val_correct_count, val_precision = evaluator.get_Precision()
                 val_f1 = evaluator.get_f1_score()
@@ -228,14 +231,14 @@ class Feedforward(torch.nn.Module):
     def predict(self, x):
         y_pred = self(x)
         return y_pred
-    
+
     def _getFullClassDictionary(self):
         x_train, y_train_arr = self._get_text_embedding(
             self.sentence_model, self.embedding_params['data_path'])
 
         y_classes = np.unique(y_train_arr)
         dic = dict(zip(y_classes, list(range(0, len(y_classes)+1))))
-        
+
         y_train = torch.from_numpy(
             np.array([dic[v] for v in y_train_arr])).long()
         return x_train, y_train, dic
