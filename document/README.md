@@ -1,5 +1,18 @@
 # Question Classification
 
+## Tokenizer
+### HOW TO USE
+```python
+from Tokenizer import Tokenizer
+
+tokenizer = Tokenizer(lower=True) # set lower to either True or False if words need to be set to lowercase or not.
+sentence = 'This acts as an example question to point out the capabilities, including stopwords ?'
+print(tokenizer.tokenize(sentence))
+```
+```bash
+['this', 'acts', 'example', 'question', 'point', 'capabilities', 'including', 'stopwords']
+```
+
 ## WordEmbeddingLoader
 ### HOW TO USE
 * GloVe
