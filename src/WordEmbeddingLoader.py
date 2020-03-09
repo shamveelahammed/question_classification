@@ -8,17 +8,8 @@ from collections import defaultdict
 import pandas as pd
 
 from Tokenizer import Tokenizer
+from PartitionData import PartitionData
 
-def partition_data(data, training_size):
-    df = pd.DataFrame(data)
-    train, val = np.split(df, [int(training_size*len(df))])
-    # create a temp file
-    with open("../data/temp_train.txt", "w") as file:
-        for line in train.values.tolist():
-            file.write(line[0])
-           
-        
-    return train.values.tolist()
         
 class WordEmbeddingLoader():
     def load(freeze=False, random=False, data_path=None, frequency_threshold=None, vector_size=None, lowercase=True, training_size=None):
@@ -49,9 +40,12 @@ class WordEmbeddingLoader():
         
         tokenizer = Tokenizer(lowercase)
 
-        data = open(data_path, 'r', encoding="ISO-8859-1")
+        # data = open(data_path, 'r', encoding="ISO-8859-1")
         
-        data = partition_data(data, training_size)
+        
+        #  retrieve train file 
+        temp_train = PartitionData(data_path=data_path,training_size=training_size)
+        data = temp_train.get_data()
         # Compute histogram of words in training dataset.
         word_freq = defaultdict(lambda: 0)
         for line in data:
