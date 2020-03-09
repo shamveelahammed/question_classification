@@ -15,12 +15,12 @@ from WordEmbeddingLoader import WordEmbeddingLoader
 
 # Feed Forward Neural Network
 from FeedForwardNetwork import Feedforward
-# from FFN2 import Feedforward
 
 # evaluation
 from Evaluator import Evaluator
 from ConfusionMatrix import ConfusionMatrix
 from PartitionData import PartitionData
+
 
 def build_parser():
     """
@@ -59,13 +59,15 @@ def train_model(args):
         config = yaml.load(config_file, Loader=yaml.FullLoader)
     except FileNotFoundError as ex:
         raise ex
-    
-    temp_data = PartitionData(data_path=config["train_file"],training_size=config["training_size"])
+
+    temp_data = PartitionData(
+        data_path=config["train_file"], training_size=config["training_size"])
     temp_data.split_data()
     # Call run_training
     run_training(config=config)
     # run_validation(config=config)
-    
+
+
 def test_model(args):
     """
     Process arguments and call run_testing.
