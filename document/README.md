@@ -163,9 +163,177 @@ tensor([[-1.8807e-01,  2.7060e-01,  1.4559e-01, -3.8446e-01, -4.4511e-01,
        grad_fn=<DivBackward0>)
 ENTY:food
 ```
+## FeedForwardNetwork
+This is the Feed-forward Neural Network classifier class. It trains Bag of Words or BiLSTM models based on user's settings specified in the config file.
+
+The constructor takes 4 arguments; hidden layer sizes, embedding parameters, max epoch, and learning rate. The embedding parameters specify settings such as either to use BOW or BiLSTM (method), the data path, either to use random initialisation or GloVe (random), lowercase, freeze, and so on. These settings can be modified by the user in the parameter.config file.
+
+Before training, we need to obtain validation data from the dev.txt file. These data is then passed as arguments to the .fit() method. In each epoch, the model will be validated with these validation data, and the loss is computed. By the end of the training, the best model with the lowest validation loss is returned.
+### HOW TO USE
+```python
+from torch import LongTensor
+from FeedForwardNetwork import Feedforward
+
+# parameter initialisations
+embedding_params = {
+       "method":    config['method'],
+       "data_path": config['train_file'],
+       "random":  (config['init_method'] == 'random'),
+       "frequency_threshold": config['bow_frequency_threshold'],
+       "vector_size": config['weights_vector_size'],
+       "lowercase": config['lowercase'],
+       "freeze": config['freeze'],
+       "training_size": config['training_size'],
+       "temp_train": config['temp_train']
+}
+maxEpoch = config['maxepoch']
+learningRate = config['learningRate']
+
+# there are 3 layers, hence list must have 3 values
+hidden_layer_sizes = config['hidden_layer_sizes']
+
+# create NN Classifier Instance
+# takes 3 arguments: hidden layer sizes, embedding params, epoch, and learning rate
+model = Feedforward(hidden_layer_sizes,
+                     embedding_params, maxEpoch, learningRate)
+# get validation data
+x_val, y_val = get_validation_data(config, model)
+# Training the model
+# return model with best validation loss
+model = model.fit(x_val, y_val)
+
+def get_validation_data(config, model):
+    """
+    TODO: This is just a stub - complete with relevant calls for processing (word embeddings, bow/bilstm) and testing against validation
+    """
+
+    # use model's sentence model - BOW or BiLSTM
+    sentence_model = model.sentence_model
+
+    # Get Text embedding for testing
+    x_val, y_val_arr = model._get_text_embedding(
+        sentence_model, config['dev_file'])
+
+    dic = model.full_class_dictionary
+
+    # Convert arrays to Tensors
+    y_val = torch.from_numpy(
+        np.array([dic[v] for v in y_val_arr])).long()
+
+    return x_val, y_val
+```
+
+## Evaluator
+This class handles the evaluation predicted labels against the actual labels of train, dev and test data. It calculates Precision, Recall, and micro-averaged F1 score. It takes two arguments as constructor, first the squeezed predicted tensor, and the second is the actual labels, in the form of integer indices 0 - 49. This class converts the former into integer form, and can be accessed through the predicted_labels class variable.
+### HOW TO USE
+```python
+from Evaluator import Evaluator
+
+# Evaluator
+evaluator = Evaluator(y_pred.squeeze(), y_test)
+# getPrecision return True Positive count and Precision score
+correct_count, precision = evaluator.get_Precision()
+f1 = evaluator.get_f1_score()
+
+# you can also access the predicted and actual labels, both in integer index form like the following:
+print(evaluator.predicted_labels)
+print(evaluator.actual_labels)
+```
+
+## ConfusionMatrix
+This class handles the generation of confusion matrix from pairs of predicted and actual labels. The constructor takes three arguments; the class dictionary, predicted labels (integer index form) and actual labels (integer index form). The getConfusionMatrix method returns a Pandas data frame object, which can later be passed to the Seaborn heat map generator. This class works seamlessly with the Evaluator class.
+### HOW TO USE
+```python
+from ConfusionMatrix import ConfusionMatrix
+
+conMatGenerator = ConfusionMatrix(model.class_dictionary, evaluator.predicted_labels, evaluator.actual_labels)
+cm_df = conMatGenerator.getConfusionMatrix()
+print(cm_df)
+
+# the data frame object is passed to Seaborn's heatmap method to produce heat map
+heat_map = sns.heatmap(cm_df, center=0,  vmin=0, vmax=15)
+plt.show()
+```
+
+## buildOutputTxt
+This method is used to generate an output.txt file, each line is the test questions, and the second and third columns are its predicted and actual labels respectively. THIS FILE NEEDS TO BE VIEWED FULL SCREEN.
+```python
+def buildOutputTxt(dataFile, y_arr, y_pred, dic, score):
+    # convert classes from indices back to string form
+    y_pred_list = []
+    for item in y_pred:
+        for key, value in dic.items():
+            if value == item:
+                y_pred_list.append(key)
+
+    # Open Test Data File
+    with open(dataFile, encoding="ISO-8859-1") as f:  # 515
+        testData = f.read().split('\n')
+    f.close()
+
+    # get only the question
+    questions = []
+    for sentence in testData:
+        question_words = sentence.split(' ')[1:]
+        question_sentence = ' '.join(question_words)
+        if len(question_words) != 0:
+            questions.append(question_sentence)
+
+    # create padded alignment
+    questions_padded = padding(questions)
+    y_pred_padded = padding(y_pred_list)
+
+    with open('output.txt', 'w') as f:
+        f.write('THIS FILE MUST BE VIEWED FULL SCREEN\n')
+        f.write(
+            '----------------------------------------------------------------------------------------------------------------------------------------------------------------------\n')
+        f.write(
+            '\t\t\tQuestions\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tPredicted\t\tActual\n')
+        f.write(
+            '----------------------------------------------------------------------------------------------------------------------------------------------------------------------\n')
+        for i in range(0, len(questions_padded)):
+            f.write('{}{}{}\n'.format(
+                questions_padded[i], y_pred_padded[i], y_arr[i]))
+        f.write(
+            '----------------------------------------------------------------------------------------------------------------------------------------------------------------------\n')
+        f.write(
+            '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tF1 Accuracy (%): {}\t\t\n'.format(score * 100))
+        f.write(
+            '----------------------------------------------------------------------------------------------------------------------------------------------------------------------\n')
+    f.close()
+```
+```bash
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			Questions																												Predicted		Actual
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+What Southern California town is named after a character made famous by Edgar Rice Burroughs ?                                        HUM:ind       LOC:city
+Where is Rider College located ?                                                                                                      LOC:other     LOC:other
+In what war was the first submarine used ?                                                                                            NUM:date      ENTY:event
+What country has the port of Haifa ?                                                                                                  LOC:country   LOC:country
+What was the name of the Protestant revolt against the supremacy of the Pope ?                                                        HUM:ind       ENTY:event
+What character in The Beverly Hillbillies has the given names Daisy Moses ?                                                           HUM:ind       HUM:ind
+Which drug is commonly used to treat AIDS ?                                                                                           ENTY:dismed   ENTY:dismed
+Whose first presidential order was : `` Let 's get this goddamn thing airborne '' ?                                                   ENTY:other    HUM:ind
+What is another name for nearsightedness ?                                                                                            ENTY:termeq   ENTY:termeq
+What Scandinavian country covers 173 , 732 square miles ?                                                                             LOC:country   LOC:country
+What is Stefan Edberg 's native country ?                                                                                             LOC:country   LOC:country
+What do you need to do to marry someone in jail ?                                                                                     DESC:reason   DESC:desc
+What was the Great Britain population from 1699-172 ?                                                                                 NUM:count     NUM:count
+What is the length of border between the Ukraine and Russia ?                                                                         DESC:def      NUM:dist
+Who was The Pride of the Yankees ?                                                                                                    HUM:ind       HUM:ind
+```
 
 ## Training Classifier
 ### HOW TO USE
+- Ensure all libraries are installed
+```bash
+pip3 install torch
+pip3 install -U numpy
+pip3 install -U pandas
+pip3 intall -U seaborn
+pip3 install -U PyYAML
+```
+
 - To train the model
 ```bash
 python question_classifier.py train --config_file parameter.config 
